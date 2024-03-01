@@ -1,0 +1,70 @@
+[versions]
+retrofit = "2.9.0"
+retrofitMoshiConverter = "0.8.0"
+moshiKotlin = "1.14.0"
+moshi = "1.14.0"
+moshiCodegen = "1.14.0"
+gradle = "8.1.2"
+kotlin = "1.8.20"
+composeCompiler = "1.4.5"
+composeFoundation = "1.5.0-alpha03"
+composeMaterial = "1.5.0-alpha03"
+composeMaterial3 = "1.1.1"
+composeRuntime = "1.5.0-alpha03"
+composeUi = "1.5.0-alpha03"
+composeUiGraphic = "1.4.0-alpha03"
+activityCompose = "1.5.1"
+coreKtx = "1.10.1"
+lifecycleRuntime = "2.6.1"
+lifecycleCompose = "2.6.2"
+loggingInterceptor = "4.10.0"
+composeNavigation = "2.5.2"
+hiltVersion = "2.43.2"
+hiltNavigationComposeVersion = "1.0.0"
+roomVersion = "2.4.2"
+agp = "8.1.2"
+org-jetbrains-kotlin-android = "1.8.10"
+junit = "4.13.2"
+androidx-test-ext-junit = "1.1.5"
+espresso-core = "3.5.1"
+appcompat = "1.6.1"
+material = "1.10.0"
+org-jetbrains-kotlin-jvm = "1.8.10"
+
+
+[libraries]
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+retrofitMoshiConverter = { module = "com.squareup.retrofit2:converter-moshi", version.ref = "retrofit" }
+loggingInterceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "loggingInterceptor" }
+moshikotlin = { module = "com.squareup.moshi:moshi-kotlin", version.ref ="moshiKotlin"}
+moshi = { module = "com.squareup.moshi:moshi", version.ref = "moshi"}
+moshiCodegen = { module = "com.squareup.moshi:moshi-kotlin-codegen", version.ref = "moshiCodegen"}
+gradleAndroid = { module = "com.android.tools.build:gradle", version.ref = "gradle" }
+koltinGradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+activityCompose = { module = "androidx.activity:activity-compose", version = "activityCompose" }
+composeCompiler = { module = "androidx.compose.compiler:compiler", version.ref = "composeCompiler" }
+composeFoundation = { module = "androidx.compose.foundation:foundation", version.ref = "composeFoundation" }
+composeMaterial = { module = "androidx.compose.material:material", version.ref = "composeMaterial" }
+composeRuntime = { module = "androidx.compose.runtime:runtime", version.ref = "composeRuntime" }
+composeUi = { module = "androidx.compose.ui:ui", version.ref = "composeUi" }
+composeUiTooling = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "composeUi" }
+composeUiGraphics = { module = "androidx.compose.ui:ui-graphics", version.ref = "composeUiGraphic" }
+coreKtx = { module = "androidx.core:core-ktx", version.ref = "coreKtx"}
+lifecycleRuntime = { module = "androidx.lifecycle:lifecycle-runtime-ktx",version.ref = "lifecycleRuntime"}
+lifecycleCompose = { module = "androidx.lifecycle:lifecycle-runtime-compose",version.ref = "lifecycleCompose"}
+composeNavigation = { module = "androidx.navigation:navigation-compose", version.ref = "composeNavigation"}
+hiltAndroid = {module = "com.google.dagger:hilt-android", version.ref = "hiltVersion"}
+hiltCompiler = {module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltVersion"}
+hiltNavigationCompose = {module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationComposeVersion"}
+roomRuntime = {module = "androidx.room:room-runtime" , version.ref = "roomVersion"}
+roomCompiler = {module = "androidx.room:room-compiler", version.ref = "roomVersion"}
+roomKtx = {module = "androidx.room:room-ktx" , version.ref = "roomVersion"}
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidx-test-ext-junit" }
+espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espresso-core" }
+appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+[plugins]
+com-android-library = { id = "com.android.library", version.ref = "agp" }
+org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "org-jetbrains-kotlin-android" }
+org-jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "org-jetbrains-kotlin-jvm" }
