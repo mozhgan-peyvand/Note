@@ -1,5 +1,7 @@
 plugins {
     id("merat.android.application")
+    id("dagger.hilt.android.plugin")
+    id("kotlin-kapt")
 }
 
 //android {
@@ -98,4 +100,9 @@ dependencies {
     implementation(project(":feature-note:note-domain"))
     implementation(project(":feature-note:note-data"))
     implementation(project(":base"))
+
+    //hilt
+    implementation(libs.hiltAndroid)
+    kapt(libs.hiltCompiler)
+    implementation(libs.hiltNavigationCompose)
 }
