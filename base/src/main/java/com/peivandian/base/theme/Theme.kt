@@ -1,4 +1,4 @@
-package com.peivandian.note.ui.theme
+package com.peivandian.base.theme
 
 import android.app.Activity
 import android.os.Build

@@ -13,27 +13,21 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.peivandian.base.navigationHelper.AppGraph
-import com.peivandian.base.util.BottomNavigationItem
-import com.peivandian.note.ui.theme.NoteTheme
+import com.peivandian.base.theme.NoteTheme
 import com.peivandian.note_ui.util.navigation.addNoteGraph
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -49,6 +43,9 @@ class MainActivity : ComponentActivity() {
             //initializing the default selected item
             var navigationSelectedItem by remember {
                 mutableStateOf(0)
+            }
+            var hasBottomBar by remember {
+                mutableStateOf(true)
             }
             navHostController = rememberNavController()
             NoteTheme {
@@ -87,41 +84,45 @@ class MainActivity : ComponentActivity() {
 //                                    )
 //                                }
 //                        }
-                        BottomAppBar(
-                            actions = {
-                                IconButton(onClick = { /*TODO*/ }) {
-                                    Icon(
-                                        imageVector = Icons.Default.Share,
-                                        contentDescription = "Share contact"
-                                    )
+                        if (hasBottomBar){
+                            BottomAppBar(
+                                actions = {
+                                    IconButton(onClick = { /*TODO*/ }) {
+                                        Icon(
+                                            imageVector = Icons.Default.Share,
+                                            contentDescription = "Share contact"
+                                        )
+                                    }
+                                    IconButton(onClick = { /*TODO*/ }) {
+                                        Icon(
+                                            imageVector = Icons.Default.FavoriteBorder,
+                                            contentDescription = "Mark as favorite"
+                                        )
+                                    }
+                                    IconButton(onClick = { /*TODO*/ }) {
+                                        Icon(
+                                            imageVector = Icons.Default.Email,
+                                            contentDescription = "Email contact"
+                                        )
+                                    }
+                                },
+                                floatingActionButton = {
+                                    FloatingActionButton(onClick = { /*TODO*/ }) {
+                                        Icon(
+                                            imageVector = Icons.Default.Add,
+                                            contentDescription = "Call contact"
+                                        )
+                                    }
                                 }
-                                IconButton(onClick = { /*TODO*/ }) {
-                                    Icon(
-                                        imageVector = Icons.Default.FavoriteBorder,
-                                        contentDescription = "Mark as favorite"
-                                    )
-                                }
-                                IconButton(onClick = { /*TODO*/ }) {
-                                    Icon(
-                                        imageVector = Icons.Default.Email,
-                                        contentDescription = "Email contact"
-                                    )
-                                }
-                            },
-                            floatingActionButton = {
-                                FloatingActionButton(onClick = { /*TODO*/ }) {
-                                    Icon(
-                                        imageVector = Icons.Default.Add,
-                                        contentDescription = "Call contact"
-                                    )
-                                }
-                            }
 
 
-                        )
+                            )
+                    }
                     }) { paddingValues ->
                     //We need to setup our NavHost in here
-                    NoteNavigation(navHostController = navHostController, paddingValues)
+                    NoteNavigation(navHostController = navHostController, paddingValues) {
+                        hasBottomBar = it
+                    }
 
                 }
             }
@@ -130,12 +131,16 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun NoteNavigation(navHostController: NavHostController, paddingValues: PaddingValues) {
+fun NoteNavigation(
+    navHostController: NavHostController,
+    paddingValues: PaddingValues,
+    setHasBottomBar: (Boolean) -> Unit
+) {
     NavHost(
         navController = navHostController,
         startDestination = AppGraph.NoteGraph.router,
         modifier = Modifier.padding(paddingValues = paddingValues)
     ) {
-        addNoteGraph(navHostController)
+        addNoteGraph(navHostController,setHasBottomBar)
     }
 }
