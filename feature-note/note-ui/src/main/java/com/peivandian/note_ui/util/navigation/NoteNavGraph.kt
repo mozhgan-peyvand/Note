@@ -8,18 +8,21 @@ import com.peivandian.note_ui.screens.NoteDetailScreen
 import com.peivandian.note_ui.screens.NoteListScreen
 
 
-fun NavGraphBuilder.addNoteGraph(navController: NavHostController) {
+fun NavGraphBuilder.addNoteGraph(
+    navController: NavHostController,
+    setHasBottomBar: (Boolean) -> Unit
+) {
     navigation(
         route = AppGraph.NoteGraph.router,
-        startDestination = NoteRouter.NoteListScreen.router
+        startDestination = NoteRouter.NoteDetailScreen.router
     ) {
 
         noteListScreen {
-            NoteListScreen(navController)
+            NoteListScreen(navController,setHasBottomBar =setHasBottomBar)
         }
 
         noteDetailScreen {
-            NoteDetailScreen(navController)
+            NoteDetailScreen(navController,setHasBottomBar = setHasBottomBar)
 
         }
 

@@ -1,4 +1,4 @@
-package com.peivandian.note.ui.theme
+package com.peivandian.base.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
