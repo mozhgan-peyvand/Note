@@ -18,9 +18,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.vectorResource
 import com.peivandian.base.R
+import com.peivandian.note_models.NoteEntity
 
 @Composable
-fun NoteItem(modifier: Modifier) {
+fun NoteItem(note: NoteEntity, modifier: Modifier) {
 
     Column(
         modifier = modifier
@@ -46,7 +47,11 @@ fun NoteItem(modifier: Modifier) {
             }
 
         }
-        Text(text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ")
+        note.description?.let {
+            Text(text = it)
+
+        }
+
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Image(
                 imageVector = ImageVector.vectorResource(com.peivandian.note_ui.R.drawable.baseline_account_circle_24),

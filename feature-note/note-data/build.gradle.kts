@@ -1,5 +1,7 @@
 plugins {
     id("merat.android.library")
+    id("kotlin-kapt")
+    id("dagger.hilt.android.plugin")
 }
 
 android {
@@ -18,5 +20,15 @@ dependencies {
     implementation(project(":feature-note:note-domain"))
     implementation(project(":feature-note:note-models"))
     implementation(project(":base"))
+
+    //room
+    implementation(libs.roomKtx)
+    implementation(libs.roomRuntime)
+    kapt(libs.roomCompiler)
+
+    //hilt
+    implementation(libs.hiltAndroid)
+    kapt(libs.hiltCompiler)
+    implementation(libs.hiltNavigationCompose)
 
 }

@@ -1,5 +1,13 @@
 pluginManagement {
     repositories {
+        maven {
+            url = uri("https://inexus.samentic.com/repository/samentic-android/")
+            artifactUrls("https://inexus.samentic.com/repository/samentic-android/")
+            credentials {
+                username = "signal"
+                password = "mR,A7,Na@s4&37@"
+            }
+        }
         google()
         mavenCentral()
         gradlePluginPortal()
@@ -7,6 +15,14 @@ pluginManagement {
 }
 dependencyResolutionManagement {
     repositories {
+        maven {
+            url = uri("https://inexus.samentic.com/repository/samentic-android/")
+            artifactUrls("https://inexus.samentic.com/repository/samentic-android/")
+            credentials {
+                username = "signal"
+                password = "mR,A7,Na@s4&37@"
+            }
+        }
         google()
         mavenCentral()
     }

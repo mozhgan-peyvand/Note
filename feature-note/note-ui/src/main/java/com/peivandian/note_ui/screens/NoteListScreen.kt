@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,16 +23,39 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.peivandian.base.util.UiEvent
+import com.peivandian.note_models.NoteListEvents
 import com.peivandian.note_ui.util.ui.TabsWithHorizontalPagerScreen
 import com.peivandian.note_ui.R as NoteUi
 import com.peivandian.base.R as BaseUi
 
 @Composable
 fun NoteListScreen(
-    navHostController: NavHostController,
-    viewModel: NoteViewModel = hiltViewModel(),
+    onNavigate: (UiEvent.Navigate) -> Unit,
+    viewModel: NoteListViewModel = hiltViewModel(),
     setHasBottomBar: (Boolean) -> Unit
 ) {
+    val noteList = viewModel.notes.collectAsState(initial = emptyList()).value
+    LaunchedEffect(key1 = true) {
+        viewModel.uiEvent.collect { event ->
+            when (event) {
+                is UiEvent.ShowSnackbar -> {
+//                    val result = scaffoldState.snackbarHostState.showSnackbar(
+//                        message = event.message,
+//                        actionLabel = event.action
+//                    )
+//                    if (result == SnackbarResult.ActionPerformed) {
+//                        viewModel.onEvent(TodoListEvent.OnUndoDeleteClick)
+//                    }
+
+                }
+                is UiEvent.Navigate -> onNavigate(event)
+                else -> Unit
+            }
+        }
+    }
+
+
     setHasBottomBar.invoke(true)
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
@@ -95,7 +120,20 @@ fun NoteListScreen(
                 .padding(dimensionResource(id = BaseUi.dimen.spacing_4x)),
             horizontalArrangement = Arrangement.Center,
         ) {
-            TabsWithHorizontalPagerScreen(Modifier.weight(5f))
+            TabsWithHorizontalPagerScreen(
+                Modifier.weight(5f),
+               onAddNoteList = {
+                viewModel.onEvent(
+                    NoteListEvents.OnAddNoteClick
+                )
+            },
+                noteList = noteList,
+                onNoteClick = { it ->
+                    viewModel.onEvent(
+                        NoteListEvents.OnNoteClick(it)
+                    )
+                }
+            )
 
 
 

@@ -1,6 +1,8 @@
 @Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
 plugins {
     id("merat.android.library")
+    id("kotlin-kapt")
+    id("dagger.hilt.android.plugin")
 }
 
 android {
@@ -17,5 +19,14 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
 
     implementation(project(":base"))
+
+    //room
+    implementation(libs.roomKtx)
+    implementation(libs.roomRuntime)
+    kapt(libs.roomCompiler)
+    //hilt
+    implementation(libs.hiltAndroid)
+    kapt(libs.hiltCompiler)
+    implementation(libs.hiltNavigationCompose)
 
 }

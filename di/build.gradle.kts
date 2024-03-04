@@ -17,6 +17,9 @@ dependencies {
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
 
+    implementation(project(":feature-note:note-models"))
+    implementation(project(":feature-note:note-data"))
+
     //hilt
     implementation(libs.hiltAndroid)
     kapt(libs.hiltCompiler)

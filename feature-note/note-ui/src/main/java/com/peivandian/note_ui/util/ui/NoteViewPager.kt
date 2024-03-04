@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
@@ -29,13 +30,19 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.vectorResource
 import com.peivandian.base.R
+import com.peivandian.note_models.NoteEntity
 import com.peivandian.note_ui.screens.NoteItem
 import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun TabsWithHorizontalPagerScreen(modifier: Modifier) {
+fun TabsWithHorizontalPagerScreen(
+    modifier: Modifier,
+    noteList: List<NoteEntity>,
+    onAddNoteList: () -> Unit,
+    onNoteClick: (NoteEntity) -> Unit
+) {
     val tabs = enumValues<Tab>()
 
     val pagerState = rememberPagerState(pageCount = { tabs.size })
@@ -47,7 +54,13 @@ fun TabsWithHorizontalPagerScreen(modifier: Modifier) {
             .heightIn(dimensionResource(id = R.dimen.spacing_13x))
     ) {
         Row(modifier = Modifier.fillMaxWidth()) {
+            Button(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = { onAddNoteList.invoke() }
+            ) {
 
+                Text(text = "اینجا بزن برای اضافه کردن")
+            }
 
             TabRow(
                 modifier = Modifier
@@ -110,14 +123,14 @@ fun TabsWithHorizontalPagerScreen(modifier: Modifier) {
             state = pagerState,
             userScrollEnabled = true
         ) {
-            TabContents(tab = tabs[pagerState.currentPage])
+            TabContents(tab = tabs[pagerState.currentPage],noteList = noteList,onNoteClick = onNoteClick)
         }
     }
 }
 
 @Composable
-fun TabContents(tab: Tab) {
-    AllNoteList()
+fun TabContents(tab: Tab, noteList: List<NoteEntity>, onNoteClick: () -> Unit) {
+    AllNoteList(noteList,onNoteClick)
 //    Box(
 //        modifier = Modifier
 //            .fillMaxSize()
@@ -132,13 +145,13 @@ enum class Tab(val title: String) {
 }
 
 @Composable
-fun AllNoteList() {
+fun AllNoteList(noteList: List<NoteEntity>, onNoteClick: () -> Unit) {
     Column {
         LazyColumn (modifier = Modifier
             .fillMaxWidth()
             .padding(dimensionResource(id = R.dimen.spacing_2x))){
-            items(5) {
-                NoteItem(Modifier.padding(dimensionResource(id = R.dimen.spacing_2x)))
+            items(noteList) { note ->
+                NoteItem( note ,Modifier.padding(dimensionResource(id = R.dimen.spacing_2x)))
             }
         }
     }

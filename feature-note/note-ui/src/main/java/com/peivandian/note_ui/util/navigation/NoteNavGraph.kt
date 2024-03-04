@@ -1,7 +1,11 @@
 package com.peivandian.note_ui.util.navigation
 
+import android.provider.ContactsContract.CommonDataKinds.Note
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.peivandian.base.navigationHelper.AppGraph
 import com.peivandian.note_ui.screens.NoteDetailScreen
@@ -14,17 +18,38 @@ fun NavGraphBuilder.addNoteGraph(
 ) {
     navigation(
         route = AppGraph.NoteGraph.router,
-        startDestination = NoteRouter.NoteDetailScreen.router
+        startDestination = NoteRouter.NoteListScreen.router
     ) {
 
-        noteListScreen {
-            NoteListScreen(navController,setHasBottomBar =setHasBottomBar)
+        composable(NoteRouter.NoteListScreen.router) {
+            NoteListScreen(
+                onNavigate = {
+                    navController.navigate(it.route)
+                },
+                setHasBottomBar = setHasBottomBar
+            )
         }
-
-        noteDetailScreen {
-            NoteDetailScreen(navController,setHasBottomBar = setHasBottomBar)
-
+        composable(NoteRouter.NoteDetailScreen.router + "?todoId={todoId}",
+            arguments = listOf(
+                navArgument(name = "todoId") {
+                    type = NavType.IntType
+                    defaultValue = -1
+                }
+            )
+        ) {
+            NoteDetailScreen(
+                onPopBackStack = { navController.popBackStack() },
+                setHasBottomBar = setHasBottomBar
+            )
         }
+//        noteListScreen {
+//            NoteListScreen(navController,setHasBottomBar =setHasBottomBar)
+//        }
+//
+//        noteDetailScreen {
+//            NoteDetailScreen(navController,setHasBottomBar = setHasBottomBar)
+//
+//        }
 
 
 //        forgetPasswordVerificationScreen {
@@ -40,3 +65,4 @@ fun NavGraphBuilder.addNoteGraph(
 
     }
 }
+

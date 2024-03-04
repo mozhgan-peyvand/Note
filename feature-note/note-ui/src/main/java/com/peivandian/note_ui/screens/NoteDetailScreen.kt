@@ -20,7 +20,9 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,28 +31,41 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.mohamedrejeb.richeditor.model.rememberRichTextState
-import com.mohamedrejeb.richeditor.ui.material3.RichText
-import com.mohamedrejeb.richeditor.ui.material3.RichTextEditor
 import com.peivandian.base.theme.ColorGray100
 import com.peivandian.base.theme.ColorGray200
 import com.peivandian.base.theme.ColorTransparentGray200
 import com.peivandian.base.theme.Purple40
 import com.peivandian.base.theme.black
+import com.peivandian.base.util.UiEvent
+import com.peivandian.note_models.NoteItemEvents
 import com.peivandian.note_ui.R as NoteUi
 import com.peivandian.base.R as BaseUi
 
 @Composable
 fun NoteDetailScreen(
-    navController: NavHostController,
-    viewModel: NoteViewModel = hiltViewModel(),
+    onPopBackStack: () -> Boolean,
+    viewModel: NoteDetailViewModel = hiltViewModel(),
     setHasBottomBar: (Boolean) -> Unit
 ) {
     setHasBottomBar.invoke(false)
+
+    LaunchedEffect(key1 = true) {
+        viewModel.uiEvent.collect { event ->
+            when (event) {
+                is UiEvent.PopBackStack -> onPopBackStack()
+                is UiEvent.ShowSnackbar -> {
+//                    scaffoldState.snackbarHostState.showSnackbar(
+//                        message = event.message,
+//                        actionLabel = event.action
+//                    )
+                }
+
+                else -> Unit
+            }
+        }
+    }
 
     Column(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.fillMaxWidth()) {
@@ -61,7 +76,9 @@ fun NoteDetailScreen(
                     .padding(dimensionResource(id = BaseUi.dimen.spacing_4x))
                     .size(dimensionResource(id = BaseUi.dimen.spacing_13x)),
                 shape = CircleShape,
-                onClick = {},
+                onClick = {
+                    viewModel.onEvent(NoteItemEvents.OnSaveTodoClick)
+                },
                 border = BorderStroke(
                     dimensionResource(id = BaseUi.dimen.spacing_half_base),
                     color = ColorGray100
@@ -184,26 +201,35 @@ fun NoteDetailScreen(
                 )
 
         ) {
-            Text(
-                modifier = Modifier.padding(dimensionResource(id = BaseUi.dimen.spacing_4x)),
-                text = "Heli Website Design",
-                style = MaterialTheme.typography.headlineMedium,
-                color = black
+            TextField(
+                value = viewModel.title,
+                onValueChange = {
+                    viewModel.onEvent(NoteItemEvents.OnTitleChange(it))
+                },
+                placeholder = {
+                    Text(text = "Title")
+                },
+                modifier = Modifier.fillMaxWidth()
             )
 
-            Text(
+            TextField(
                 modifier = Modifier.padding(dimensionResource(id = BaseUi.dimen.spacing_4x)),
-                text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ",
-                style = MaterialTheme.typography.bodyMedium,
-                color = ColorGray200
+                value = viewModel.description,
+                onValueChange = {
+                    viewModel.onEvent(NoteItemEvents.OnDescriptionChange(it))
+                },
+                placeholder = {
+                    Text(text = "Description")
+                },
+                singleLine = false,
+                maxLines = 5
             )
             Row(
                 modifier = Modifier
                     .wrapContentWidth()
                     .clip(RoundedCornerShape(dimensionResource(id = BaseUi.dimen.spacing_6x)))
                     .background(black)
-                    .padding(dimensionResource(id = BaseUi.dimen.spacing_2x))
-                ,
+                    .padding(dimensionResource(id = BaseUi.dimen.spacing_2x)),
                 horizontalArrangement = Arrangement.Center
             ) {
                 Image(

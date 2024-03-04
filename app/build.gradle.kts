@@ -100,6 +100,7 @@ dependencies {
     implementation(project(":feature-note:note-domain"))
     implementation(project(":feature-note:note-data"))
     implementation(project(":base"))
+    implementation(project(":di"))
 
     //hilt
     implementation(libs.hiltAndroid)
