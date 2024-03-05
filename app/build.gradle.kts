@@ -106,4 +106,11 @@ dependencies {
     implementation(libs.hiltAndroid)
     kapt(libs.hiltCompiler)
     implementation(libs.hiltNavigationCompose)
+    implementation(libs.hiltWork)
+//    kapt(libs.hiltAndroidX)
+
+    //room
+    implementation(libs.roomKtx)
+    implementation(libs.roomRuntime)
+    kapt(libs.roomCompiler)
 }

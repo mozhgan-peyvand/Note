@@ -1,8 +1,15 @@
 package com.peivandian.note
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -23,6 +30,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.core.app.ActivityCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
@@ -130,33 +138,104 @@ class MainActivity : ComponentActivity() {
                         setHasBottomBar = {
                             hasBottomBar = it
                         },
-                        setAddNote = {addNoteClick = it}
+                        setAddNote = { addNoteClick = it }
                     )
 
                 }
             }
         }
     }
-}
 
-@Composable
-fun NoteNavigation(
-    navHostController: NavHostController,
-    paddingValues: PaddingValues,
-    setHasBottomBar: (Boolean) -> Unit,
-    addNoteClick: Boolean,
-    setAddNote: (Boolean) -> Unit
-) {
-    NavHost(
-        navController = navHostController,
-        startDestination = AppGraph.NoteGraph.router,
-        modifier = Modifier.padding(paddingValues = paddingValues)
-    ) {
-        addNoteGraph(
-            navController = navHostController,
-            setHasBottomBar = setHasBottomBar,
-            addNoteClick = addNoteClick,
-            setAddNote = setAddNote
-        )
+
+    companion object {
+        const val CHANNEL_ID = "reminder_id"
+            private var TAG = "MainActivity"
+            const val REQUEST_CODE_NOTIFICATION_PERMISSIONS = 11
+
     }
+
+    @Composable
+    fun NoteNavigation(
+        navHostController: NavHostController,
+        paddingValues: PaddingValues,
+        setHasBottomBar: (Boolean) -> Unit,
+        addNoteClick: Boolean,
+        setAddNote: (Boolean) -> Unit
+    ) {
+        NavHost(
+            navController = navHostController,
+            startDestination = AppGraph.NoteGraph.router,
+            modifier = Modifier.padding(paddingValues = paddingValues)
+        ) {
+            addNoteGraph(
+                navController = navHostController,
+                setHasBottomBar = setHasBottomBar,
+                addNoteClick = addNoteClick,
+                setAddNote = setAddNote
+            )
+        }
+    }
+
+//    @RequiresApi(Build.VERSION_CODES.M)
+//    private fun getNotificationPermissions() {
+//        try {
+//            // Check if the app already has the permissions.
+//            val hasAccessNotificationPolicyPermission =
+//                checkSelfPermission(android.Manifest.permission.ACCESS_NOTIFICATION_POLICY) == PackageManager.PERMISSION_GRANTED
+//            val hasPostNotificationsPermission =
+//                checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+//
+//            // If the app doesn't have the permissions, request them.
+//            when {
+//                !hasAccessNotificationPolicyPermission || !hasPostNotificationsPermission -> {
+//                    // Request the permissions.
+//                    ActivityCompat.requestPermissions(
+//                        this,
+//                        arrayOf(
+//                            android.Manifest.permission.ACCESS_NOTIFICATION_POLICY,
+//                            android.Manifest.permission.POST_NOTIFICATIONS
+//                        ),
+//                        REQUEST_CODE_NOTIFICATION_PERMISSIONS
+//                    )
+//                }
+//                else -> {
+//                    // proceed
+//                    Log.d(TAG, "Notification Permissions : previously granted successfully")
+//                }
+//            }
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//        }
+//    }
+//
+//    @Deprecated("Deprecated in Java")
+//    @RequiresApi(Build.VERSION_CODES.M)
+//    override fun onRequestPermissionsResult(
+//        requestCode: Int,
+//        permissions: Array<out String>,
+//        grantResults: IntArray
+//    ) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+//
+//        when (requestCode) {
+//            // Check if the user granted the permissions.
+//            REQUEST_CODE_NOTIFICATION_PERMISSIONS -> {
+//                val hasAccessNotificationPolicyPermission =
+//                    grantResults[0] == PackageManager.PERMISSION_GRANTED
+//                val hasPostNotificationsPermission =
+//                    grantResults[1] == PackageManager.PERMISSION_GRANTED
+//
+//                // If the user denied the permissions, show a check.
+//                when {
+//                    !hasAccessNotificationPolicyPermission || !hasPostNotificationsPermission -> {
+//                        getNotificationPermissions()
+//                    }
+//                    else -> {
+//                        Log.d(TAG, "Notification Permissions : Granted successfully")
+//                    }
+//                }
+//            }
+//        }
+//    }
+
 }
