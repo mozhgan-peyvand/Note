@@ -30,7 +30,7 @@ class NoteDetailViewModel @Inject constructor(
 
 ): ViewModel() {
 
-    var todo by mutableStateOf<NoteEntity?>(null)
+    var note by mutableStateOf<NoteEntity?>(null)
         private set
 
     /*
@@ -62,15 +62,18 @@ class NoteDetailViewModel @Inject constructor(
         saved state handle that is an integer the navigation argument is
         called to do id and
         * */
-        val todoId = savedStateHandle.get<Int>("todoId")!!
-        if (todoId != -1) {
-            viewModelScope.launch {
-                getLocalNoteById(id = todoId)?.let { todo ->
-                    title = todo.title
-                    description = todo.description ?: ""
-                    this@NoteDetailViewModel.todo = todo
+        val noteId = savedStateHandle.get<Int>("noteId")
+        noteId?.let {
+            if (it != -1) {
+                viewModelScope.launch {
+                    getLocalNoteById(id = it)?.let { note ->
+                        title = note.title
+                        description = note.description ?: ""
+                        this@NoteDetailViewModel.note = note
+                    }
                 }
             }
+
         }
     }
     fun onEvent(event: NoteItemEvents) {
@@ -93,8 +96,8 @@ class NoteDetailViewModel @Inject constructor(
                         NoteEntity(
                             title = title,
                             description = description,
-                            isDone = todo?.isDone ?: false,
-                            id = todo?.id
+                            isDone = note?.isDone ?: false,
+                            id = note?.id
                         )
                     )
                     sendUiEvent(UiEvent.PopBackStack)
