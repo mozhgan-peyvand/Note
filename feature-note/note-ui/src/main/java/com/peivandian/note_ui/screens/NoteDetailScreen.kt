@@ -17,29 +17,33 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.vectorResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.peivandian.base.theme.ColorGray100
-import com.peivandian.base.theme.ColorGray200
 import com.peivandian.base.theme.ColorTransparentGray200
 import com.peivandian.base.theme.Purple40
 import com.peivandian.base.theme.black
 import com.peivandian.base.util.UiEvent
 import com.peivandian.note_models.NoteItemEvents
+import com.peivandian.note_ui.util.ui.ReminderDialog
+import java.util.concurrent.TimeUnit
 import com.peivandian.note_ui.R as NoteUi
 import com.peivandian.base.R as BaseUi
 
@@ -47,8 +51,39 @@ import com.peivandian.base.R as BaseUi
 fun NoteDetailScreen(
     onPopBackStack: () -> Boolean,
     viewModel: NoteDetailViewModel = hiltViewModel(),
-    setHasBottomBar: (Boolean) -> Unit
+    setHasBottomBar: (Boolean) -> Unit,
+    remindViewModel: RemindViewModel = hiltViewModel()
 ) {
+    var dialogState by remember { mutableStateOf(false) }
+    var context = LocalContext.current
+
+    if (dialogState) {
+        ReminderDialog(
+            name = viewModel.title,
+            onDismiss = { dialogState = false },
+            scheduleReminder = { delayMillis, timeSecond, name ->
+                remindViewModel.scheduleReminder(
+                    delayMillis,
+                    timeSecond,
+                    name
+                )
+            }
+        )
+    }
+//    ShowDialog(
+//        dialogState = dialogState,
+//        setDialogState = { dialogState = it },
+//        title = viewModel.title,
+//        scheduleReminder = { delayMillis: Long, timeSecond: TimeUnit, name: String ->
+//            remindViewModel.scheduleReminder(
+//                delayMillis,
+//                timeSecond,
+//                name
+//            )
+//        }
+//    )
+
+
     setHasBottomBar.invoke(false)
 
     LaunchedEffect(key1 = true) {
@@ -163,7 +198,7 @@ fun NoteDetailScreen(
             }
 
             Button(
-                onClick = { /*TODO*/ },
+                onClick = { dialogState = true },
                 modifier = Modifier
                     .clip(RoundedCornerShape(dimensionResource(id = BaseUi.dimen.spacing_12x)))
                     .padding(dimensionResource(id = BaseUi.dimen.spacing_4x)),
@@ -332,4 +367,26 @@ fun NoteDetailScreen(
 
     }
 
+}
+
+@Composable
+fun ShowDialog(
+    dialogState: Boolean,
+    setDialogState: (Boolean) -> Unit,
+    title: String,
+    scheduleReminder: (delayMillis: Long, timeSecond: TimeUnit, name: String) -> Unit
+) {
+    if (dialogState) {
+        ReminderDialog(
+            name = title,
+            onDismiss = {  },
+            scheduleReminder = { delayMillis, timeSecond, name ->
+                scheduleReminder(
+                    delayMillis,
+                    timeSecond,
+                    name
+                )
+            }
+        )
+    }
 }

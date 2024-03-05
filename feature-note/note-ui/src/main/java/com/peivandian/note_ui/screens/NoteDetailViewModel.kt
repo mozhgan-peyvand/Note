@@ -1,8 +1,14 @@
 package com.peivandian.note_ui.screens
 
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -26,9 +32,9 @@ class NoteDetailViewModel @Inject constructor(
     private val getLocalNotes: GetLocalNotes,
     private val setLocalNotes: SetLocalNotes,
     private val getLocalNoteById: GetLocalNoteById,
-    private val deleteLocalNote: DeleteLocalNote
+    private val deleteLocalNote: DeleteLocalNote,
 
-): ViewModel() {
+    ): ViewModel() {
 
     var note by mutableStateOf<NoteEntity?>(null)
         private set

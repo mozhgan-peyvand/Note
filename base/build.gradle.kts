@@ -1,5 +1,7 @@
 plugins {
     id("merat.android.library")
+    id("kotlin-kapt")
+    id("dagger.hilt.android.plugin")
 }
 
 android {
@@ -22,5 +24,17 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation ("androidx.navigation:navigation-compose:2.7.1")
 
-    implementation ("androidx.navigation:navigation-compose:2.7.1")
+// work manager
+    implementation("androidx.work:work-runtime-ktx:2.8.1")
+    //hilt
+    implementation(libs.hiltAndroid)
+    kapt(libs.hiltCompiler)
+    implementation(libs.hiltNavigationCompose)
+    implementation(libs.hiltWork)
+//    kapt(libs.hiltAndroidX)
+
+    //room
+    implementation(libs.roomKtx)
+    implementation(libs.roomRuntime)
+    kapt(libs.roomCompiler)
 }
