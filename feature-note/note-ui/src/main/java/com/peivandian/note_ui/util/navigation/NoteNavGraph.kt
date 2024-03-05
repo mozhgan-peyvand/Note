@@ -1,6 +1,5 @@
 package com.peivandian.note_ui.util.navigation
 
-import android.provider.ContactsContract.CommonDataKinds.Note
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -14,7 +13,9 @@ import com.peivandian.note_ui.screens.NoteListScreen
 
 fun NavGraphBuilder.addNoteGraph(
     navController: NavHostController,
-    setHasBottomBar: (Boolean) -> Unit
+    setHasBottomBar: (Boolean) -> Unit,
+    addNoteClick: Boolean,
+    setAddNote: (Boolean)-> Unit
 ) {
     navigation(
         route = AppGraph.NoteGraph.router,
@@ -26,12 +27,14 @@ fun NavGraphBuilder.addNoteGraph(
                 onNavigate = {
                     navController.navigate(it.route)
                 },
-                setHasBottomBar = setHasBottomBar
+                setHasBottomBar = setHasBottomBar,
+                addNoteClick = addNoteClick,
+                setAddNote = setAddNote
             )
         }
-        composable(NoteRouter.NoteDetailScreen.router + "?todoId={todoId}",
+        composable(NoteRouter.NoteDetailScreen.router + "?noteId={noteId}",
             arguments = listOf(
-                navArgument(name = "todoId") {
+                navArgument(name = "noteId") {
                     type = NavType.IntType
                     defaultValue = -1
                 }

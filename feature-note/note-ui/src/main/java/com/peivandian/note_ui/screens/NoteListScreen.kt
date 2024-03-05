@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -19,12 +20,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
+import com.peivandian.base.theme.ColorGray300
+import com.peivandian.base.theme.black
 import com.peivandian.base.util.UiEvent
+import com.peivandian.note_models.NoteEntity
 import com.peivandian.note_models.NoteListEvents
+import com.peivandian.note_ui.R
 import com.peivandian.note_ui.util.ui.TabsWithHorizontalPagerScreen
 import com.peivandian.note_ui.R as NoteUi
 import com.peivandian.base.R as BaseUi
@@ -33,22 +38,16 @@ import com.peivandian.base.R as BaseUi
 fun NoteListScreen(
     onNavigate: (UiEvent.Navigate) -> Unit,
     viewModel: NoteListViewModel = hiltViewModel(),
-    setHasBottomBar: (Boolean) -> Unit
+    setHasBottomBar: (Boolean) -> Unit,
+    addNoteClick: Boolean,
+    setAddNote: (Boolean) -> Unit
 ) {
+
     val noteList = viewModel.notes.collectAsState(initial = emptyList()).value
+
     LaunchedEffect(key1 = true) {
         viewModel.uiEvent.collect { event ->
             when (event) {
-                is UiEvent.ShowSnackbar -> {
-//                    val result = scaffoldState.snackbarHostState.showSnackbar(
-//                        message = event.message,
-//                        actionLabel = event.action
-//                    )
-//                    if (result == SnackbarResult.ActionPerformed) {
-//                        viewModel.onEvent(TodoListEvent.OnUndoDeleteClick)
-//                    }
-
-                }
                 is UiEvent.Navigate -> onNavigate(event)
                 else -> Unit
             }
@@ -57,63 +56,52 @@ fun NoteListScreen(
 
 
     setHasBottomBar.invoke(true)
+
+    NoteListScreen(
+        addNoteClick = addNoteClick,
+        noteList = noteList,
+        onAddNoteClick = {
+            viewModel.onEvent(
+                NoteListEvents.OnAddNoteClick
+            )
+        },
+        onNoteClick = {
+            viewModel.onEvent(
+                NoteListEvents.OnNoteClick(it)
+            )
+        },
+        setAddNote = setAddNote
+    )
+}
+
+@Composable
+fun OnAddNote(
+    addNoteClick: Boolean,
+    onAddNoteClick: () -> Unit,
+    setAddNote: (Boolean) -> Unit
+) {
+    if (addNoteClick) {
+        onAddNoteClick()
+        setAddNote.invoke(false)
+    }
+}
+
+@Composable
+fun NoteListScreen(
+    noteList: List<NoteEntity>,
+    onAddNoteClick: () -> Unit,
+    onNoteClick: (NoteEntity) -> Unit,
+    addNoteClick: Boolean,
+    setAddNote: (Boolean) -> Unit
+) {
+    OnAddNote(addNoteClick = addNoteClick, onAddNoteClick = onAddNoteClick, setAddNote = setAddNote)
+
     Column(modifier = Modifier.fillMaxSize()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = dimensionResource(id = BaseUi.dimen.spacing_6x),
-                    vertical = dimensionResource(
-                        id = BaseUi.dimen.spacing_6x
-                    )
-                ),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(
-                modifier = Modifier
-                    .size(64.dp)
-                    .clip(CircleShape),
-                imageVector = ImageVector.vectorResource(NoteUi.drawable.baseline_account_circle_24),
-                contentDescription = ""
-            )
-            Text(
-                text = "Alireza abbasi", modifier = Modifier.padding(
-                    horizontal = dimensionResource(
-                        id = BaseUi.dimen.spacing_2x
-                    )
-                )
-            )
-        }
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(dimensionResource(id = BaseUi.dimen.spacing_6x))
-        ) {
-            Image(
-                modifier = Modifier.align(Alignment.CenterEnd),
-                imageVector = ImageVector.vectorResource(NoteUi.drawable.baseline_arrow_forward_ios_24),
-                contentDescription = ""
-            )
-            Column(modifier = Modifier.align(Alignment.TopCenter), horizontalAlignment = Alignment.CenterHorizontally){
-                Row {
-                    Image(
-                        imageVector = ImageVector.vectorResource(NoteUi.drawable.baseline_account_circle_24),
-                        contentDescription =""
-                    )
-                    Text(text = "ToDay")
-                }
-                Text(modifier = Modifier, text = "Friday, 9 March")
 
-            }
+        Toolbar(modifier = Modifier)
 
-            Image(
-                modifier = Modifier
-                    .align(Alignment.CenterStart),
-                imageVector = ImageVector.vectorResource(NoteUi.drawable.baseline_arrow_back_ios_24),
-                contentDescription = ""
-            )
+        DateViewPager(modifier = Modifier)
 
-        }
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -122,26 +110,119 @@ fun NoteListScreen(
         ) {
             TabsWithHorizontalPagerScreen(
                 Modifier.weight(5f),
-               onAddNoteList = {
-                viewModel.onEvent(
-                    NoteListEvents.OnAddNoteClick
-                )
-            },
                 noteList = noteList,
                 onNoteClick = { it ->
-                    viewModel.onEvent(
-                        NoteListEvents.OnNoteClick(it)
-                    )
+                    onNoteClick(it)
                 }
             )
+        }
+    }
+}
 
+@Composable
+fun Toolbar(modifier: Modifier) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = dimensionResource(id = BaseUi.dimen.spacing_6x),
+                vertical = dimensionResource(
+                    id = BaseUi.dimen.spacing_6x
+                )
+            ),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Row(
+            modifier = Modifier,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape),
+                imageVector = ImageVector.vectorResource(NoteUi.drawable.baseline_account_circle_24),
+                contentDescription = ""
+            )
+            Text(
+                modifier = Modifier.padding(
+                    horizontal = dimensionResource(
+                        id = BaseUi.dimen.spacing_2x
+                    )
+                ),
+                text = stringResource(id = R.string.profile_name)
+            )
+        }
+        Row(
+            modifier = Modifier,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
 
+            Image(
+                modifier = Modifier
+                    .size(30.dp),
+                imageVector = ImageVector.vectorResource(NoteUi.drawable.notification_status),
+                contentDescription = ""
+            )
 
+            Image(
+                modifier = Modifier
+                    .padding(horizontal = dimensionResource(id = com.peivandian.base.R.dimen.spacing_2x))
+                    .size(30.dp),
+                imageVector = ImageVector.vectorResource(NoteUi.drawable.direct_inbox),
+                contentDescription = ""
+            )
+        }
+    }
+}
+
+@Composable
+fun DateViewPager(modifier: Modifier) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(dimensionResource(id = BaseUi.dimen.spacing_6x))
+    ) {
+        Image(
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .padding(end = dimensionResource(id = com.peivandian.base.R.dimen.spacing_13x)),
+            imageVector = ImageVector.vectorResource(NoteUi.drawable.baseline_arrow_forward_ios_24),
+            contentDescription = ""
+        )
+        Column(
+            modifier = Modifier.align(Alignment.TopCenter),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Row {
+                Image(
+                    modifier = Modifier.padding(horizontal = dimensionResource(id = com.peivandian.base.R.dimen.spacing_base)),
+                    imageVector = ImageVector.vectorResource(NoteUi.drawable.calendar_2),
+                    contentDescription = ""
+                )
+                Text(
+                    text = stringResource(id = R.string.label_day),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = black
+                )
+            }
+            Text(
+                text = stringResource(id = R.string.label_date),
+                style = MaterialTheme.typography.labelMedium,
+                color = ColorGray300
+            )
 
         }
 
+        Image(
+            modifier = Modifier
+                .padding(start = dimensionResource(id = com.peivandian.base.R.dimen.spacing_13x))
+                .align(Alignment.CenterStart),
+            imageVector = ImageVector.vectorResource(NoteUi.drawable.baseline_arrow_back_ios_24),
+            contentDescription = ""
+        )
 
     }
-
 
 }

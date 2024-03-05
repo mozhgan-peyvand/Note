@@ -12,4 +12,7 @@ val White = Color(0xFFFFFFFF)
 
 val ColorGray100 = Color(0xFFDBDBDB)
 val ColorGray200 = Color(0xFF747474)
+val ColorGray300 = Color(0xFF6A6A6A)
 val ColorTransparentGray200 = Color(0x34FFFFFF)
+
+val ColorBlue100 = Color(0xFF3384F9)

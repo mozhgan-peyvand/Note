@@ -47,6 +47,9 @@ class MainActivity : ComponentActivity() {
             var hasBottomBar by remember {
                 mutableStateOf(true)
             }
+            var addNoteClick by remember {
+                mutableStateOf(false)
+            }
             navHostController = rememberNavController()
             NoteTheme {
                 // A surface container using the 'background' color from the theme
@@ -84,7 +87,7 @@ class MainActivity : ComponentActivity() {
 //                                    )
 //                                }
 //                        }
-                        if (hasBottomBar){
+                        if (hasBottomBar) {
                             BottomAppBar(
                                 actions = {
                                     IconButton(onClick = { /*TODO*/ }) {
@@ -107,7 +110,7 @@ class MainActivity : ComponentActivity() {
                                     }
                                 },
                                 floatingActionButton = {
-                                    FloatingActionButton(onClick = { /*TODO*/ }) {
+                                    FloatingActionButton(onClick = { addNoteClick = true }) {
                                         Icon(
                                             imageVector = Icons.Default.Add,
                                             contentDescription = "Call contact"
@@ -117,12 +120,18 @@ class MainActivity : ComponentActivity() {
 
 
                             )
-                    }
+                        }
                     }) { paddingValues ->
                     //We need to setup our NavHost in here
-                    NoteNavigation(navHostController = navHostController, paddingValues) {
-                        hasBottomBar = it
-                    }
+                    NoteNavigation(
+                        navHostController = navHostController,
+                        paddingValues = paddingValues,
+                        addNoteClick = addNoteClick,
+                        setHasBottomBar = {
+                            hasBottomBar = it
+                        },
+                        setAddNote = {addNoteClick = it}
+                    )
 
                 }
             }
@@ -134,13 +143,20 @@ class MainActivity : ComponentActivity() {
 fun NoteNavigation(
     navHostController: NavHostController,
     paddingValues: PaddingValues,
-    setHasBottomBar: (Boolean) -> Unit
+    setHasBottomBar: (Boolean) -> Unit,
+    addNoteClick: Boolean,
+    setAddNote: (Boolean) -> Unit
 ) {
     NavHost(
         navController = navHostController,
         startDestination = AppGraph.NoteGraph.router,
         modifier = Modifier.padding(paddingValues = paddingValues)
     ) {
-        addNoteGraph(navHostController,setHasBottomBar)
+        addNoteGraph(
+            navController = navHostController,
+            setHasBottomBar = setHasBottomBar,
+            addNoteClick = addNoteClick,
+            setAddNote = setAddNote
+        )
     }
 }

@@ -30,8 +30,7 @@ dependencies {
     implementation(project(":feature-note:note-models"))
     implementation(project(":base"))
     implementation("com.mohamedrejeb.richeditor:richeditor-compose:1.0.0-rc01")
-
-
+    implementation("androidx.compose.material:material-icons-extended:1.5.3")
 
     //hilt
     implementation(libs.hiltAndroid)
