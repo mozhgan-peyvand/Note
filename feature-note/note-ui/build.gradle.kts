@@ -32,19 +32,21 @@ dependencies {
     implementation("com.mohamedrejeb.richeditor:richeditor-compose:1.0.0-rc01")
     implementation("androidx.compose.material:material-icons-extended:1.5.3")
 // work manager
-    implementation("androidx.work:work-runtime-ktx:2.8.1")
+    implementation("androidx.work:work-runtime-ktx:2.7.1")
 
     //hilt
     implementation(libs.hiltAndroid)
     kapt(libs.hiltCompiler)
     implementation(libs.hiltNavigationCompose)
     implementation(libs.hiltWork)
-//    kapt(libs.hiltAndroidX)
+    kapt(libs.hiltAndroidX)
+    implementation("androidx.room:room-migration:2.6.0")
 
     //room
     implementation(libs.roomKtx)
     implementation(libs.roomRuntime)
     kapt(libs.roomCompiler)
+    implementation(libs.roomCommon)
 
 
 }

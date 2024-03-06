@@ -19,15 +19,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.peivandian.note_ui.R
+import com.peivandian.note_ui.screens.RemindViewModel
 import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ReminderDialog(
-    name: String,
+    title: String,
+    description:String,
     onDismiss: () -> Unit,
-    scheduleReminder: (delayMillis: Long, timeSecond: TimeUnit, name: String) -> Unit
+    reminderWorker: RemindViewModel = hiltViewModel()
 ) {
 val context = LocalContext.current
     val schedules = listOf(
@@ -63,10 +66,11 @@ val context = LocalContext.current
                     ListItem(
                         text = { Text(text = stringResource(scheduleTextId)) },
                         modifier = Modifier.clickable {
-                            scheduleReminder.invoke(
-                                delayMillis,
-                                TimeUnit.MILLISECONDS,
-                                name
+                            reminderWorker.scheduleReminder(
+                                duration =  delayMillis,
+                                timeUnit = TimeUnit.MILLISECONDS,
+                                title = title,
+                                description = description
                             )
 
                             // event

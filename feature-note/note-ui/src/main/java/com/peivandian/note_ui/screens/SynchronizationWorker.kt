@@ -8,6 +8,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.hilt.work.HiltWorker
+import androidx.work.CoroutineWorker
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
@@ -20,15 +21,15 @@ class SynchronizationWorker @AssistedInject constructor(
     private var notificationManager: NotificationManagerCompat,
     @Assisted private val context: Context,
     @Assisted workerParams: WorkerParameters
-) : Worker(context, workerParams) {
+) : CoroutineWorker(context, workerParams) {
     private val countDownLatch = CountDownLatch(1)
 
-    override fun doWork(): Result {
+    @SuppressLint("MissingPermission")
+    override suspend fun doWork(): Result {
 //        val notificationHelper = NotificationHelper(context)
-        showSimpleNotification(context)
-        var workResult: Result = Result.success()
+        notificationManager.notify(17, notificationBuilder.build())
         //doThings
-        return workResult
+        return Result.success()
     }
 
     @SuppressLint("MissingPermission")
@@ -48,6 +49,5 @@ class SynchronizationWorker @AssistedInject constructor(
 //            // for ActivityCompat#requestPermissions for more details.
 //            return
 //
-        notificationManager.notify(1, notificationBuilder.build())
     }
 }

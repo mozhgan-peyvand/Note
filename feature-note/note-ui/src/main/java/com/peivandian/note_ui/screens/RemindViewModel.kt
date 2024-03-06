@@ -14,7 +14,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RemindViewModel @Inject constructor(
-    @ApplicationContext private var context: Context,
+    private var workManager: WorkManager
 ): ViewModel() {
 
 
@@ -23,24 +23,26 @@ class RemindViewModel @Inject constructor(
     @SuppressLint("SuspiciousIndentation")
     fun scheduleReminder(
         duration: Long,
-        unit: TimeUnit,
-        plantName: String,
+        timeUnit: TimeUnit,
+        title: String,
+        description: String
     ) {
 
         // create a Data instance with the plantName passed to it
         val myWorkRequestBuilder = OneTimeWorkRequestBuilder<SynchronizationWorker>()
 //        for (items in itemsList.toMutableList()) {
 //            if (items.name == plantName) {
+
                 myWorkRequestBuilder.setInputData(
                     workDataOf(
-                        "NAME" to "items.name",
-                        "MESSAGE" to "items.description"
+                        "NAME" to title,
+                        "MESSAGE" to description
                     )
                 )
 //            }
 //        }
-        myWorkRequestBuilder.setInitialDelay(duration, unit)
-        WorkManager.getInstance(context).enqueue(myWorkRequestBuilder.build())
+        myWorkRequestBuilder.setInitialDelay(duration, timeUnit)
+        workManager.enqueue(myWorkRequestBuilder.build())
     }
 
 }
