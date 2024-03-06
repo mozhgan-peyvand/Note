@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
 import com.peivandian.base.navigationHelper.AppGraph
 import com.peivandian.note_ui.screens.NoteDetailScreen
@@ -15,14 +16,19 @@ fun NavGraphBuilder.addNoteGraph(
     navController: NavHostController,
     setHasBottomBar: (Boolean) -> Unit,
     addNoteClick: Boolean,
-    setAddNote: (Boolean)-> Unit
+    setAddNote: (Boolean) -> Unit
 ) {
     navigation(
         route = AppGraph.NoteGraph.router,
         startDestination = NoteRouter.NoteListScreen.router
     ) {
 
-        composable(NoteRouter.NoteListScreen.router) {
+        composable(
+            NoteRouter.NoteListScreen.router,
+            deepLinks = listOf(navDeepLink {
+                uriPattern = "note://" + NoteRouter.NoteListScreen.router
+            })
+            ) {
             NoteListScreen(
                 onNavigate = {
                     navController.navigate(it.route)

@@ -21,9 +21,10 @@ loggingInterceptor = "4.10.0"
 composeNavigation = "2.5.2"
 hiltVersion = "2.44"
 hiltdd = "1.0.0"
-hiltdfd = "1.1.0"
+hiltdfd = "1.0.0"
 hiltNavigationComposeVersion = "1.0.0"
 roomVersion = "2.4.2"
+roomVersiond = "2.4.3"
 agp = "8.1.0"
 org-jetbrains-kotlin-android = "1.8.10"
 junit = "4.13.2"
@@ -57,12 +58,12 @@ lifecycleCompose = { module = "androidx.lifecycle:lifecycle-runtime-compose",ver
 composeNavigation = { module = "androidx.navigation:navigation-compose", version.ref = "composeNavigation"}
 hiltAndroid = {module = "com.google.dagger:hilt-android", version.ref = "hiltVersion"}
 hiltWork = {module = "androidx.hilt:hilt-work", version.ref = "hiltdd"}
-hiltAndroidX = {module = "androidx.hilt:hilt-compiler", version.ref = "hiltdd"}
+hiltAndroidX = {module = "androidx.hilt:hilt-compiler", version.ref = "hiltdfd"}
 hiltCompiler = {module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltVersion"}
 hiltNavigationCompose = {module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationComposeVersion"}
 roomRuntime = {module = "androidx.room:room-runtime" , version.ref = "roomVersion"}
 roomCompiler = {module = "androidx.room:room-compiler", version.ref = "roomVersion"}
-roomCommon = {module = "androidx.room:room-common", version.ref = "roomVersion"}
+roomCommon = {module = "androidx.room:room-common", version.ref = "roomVersiond"}
 roomKtx = {module = "androidx.room:room-ktx" , version.ref = "roomVersion"}
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidx-test-ext-junit" }

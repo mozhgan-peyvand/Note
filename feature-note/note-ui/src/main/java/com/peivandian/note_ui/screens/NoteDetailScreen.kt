@@ -52,22 +52,15 @@ fun NoteDetailScreen(
     onPopBackStack: () -> Boolean,
     viewModel: NoteDetailViewModel = hiltViewModel(),
     setHasBottomBar: (Boolean) -> Unit,
-    remindViewModel: RemindViewModel = hiltViewModel()
 ) {
     var dialogState by remember { mutableStateOf(false) }
     var context = LocalContext.current
 
     if (dialogState) {
         ReminderDialog(
-            name = viewModel.title,
+            title = viewModel.title,
             onDismiss = { dialogState = false },
-            scheduleReminder = { delayMillis, timeSecond, name ->
-                remindViewModel.scheduleReminder(
-                    delayMillis,
-                    timeSecond,
-                    name
-                )
-            }
+           description = viewModel.description
         )
     }
 //    ShowDialog(
@@ -102,6 +95,30 @@ fun NoteDetailScreen(
         }
     }
 
+    NoteDetailScreen(
+        onSaveTodoClick =  {
+            viewModel.onEvent(NoteItemEvents.OnSaveTodoClick)
+        },
+        setDialogState = {dialogState = it},
+        onTitleChange = {viewModel.onEvent(NoteItemEvents.OnTitleChange(it))},
+        title = viewModel.title,
+        description = viewModel.description,
+        onDescriptionChange = {viewModel.onEvent(NoteItemEvents.OnDescriptionChange(it))}
+    )
+
+
+
+}
+
+@Composable
+fun NoteDetailScreen(
+    onSaveTodoClick: () -> Unit,
+    setDialogState: (Boolean) -> Unit,
+    onTitleChange: (String) -> Unit,
+    title: String,
+    description: String,
+    onDescriptionChange: (String) -> Unit
+) {
     Column(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.fillMaxWidth()) {
 
@@ -112,7 +129,7 @@ fun NoteDetailScreen(
                     .size(dimensionResource(id = BaseUi.dimen.spacing_13x)),
                 shape = CircleShape,
                 onClick = {
-                    viewModel.onEvent(NoteItemEvents.OnSaveTodoClick)
+                    onSaveTodoClick.invoke()
                 },
                 border = BorderStroke(
                     dimensionResource(id = BaseUi.dimen.spacing_half_base),
@@ -198,7 +215,7 @@ fun NoteDetailScreen(
             }
 
             Button(
-                onClick = { dialogState = true },
+                onClick = { setDialogState.invoke(true) },
                 modifier = Modifier
                     .clip(RoundedCornerShape(dimensionResource(id = BaseUi.dimen.spacing_12x)))
                     .padding(dimensionResource(id = BaseUi.dimen.spacing_4x)),
@@ -237,9 +254,9 @@ fun NoteDetailScreen(
 
         ) {
             TextField(
-                value = viewModel.title,
+                value = title,
                 onValueChange = {
-                    viewModel.onEvent(NoteItemEvents.OnTitleChange(it))
+                    onTitleChange.invoke(it)
                 },
                 placeholder = {
                     Text(text = "Title")
@@ -249,9 +266,9 @@ fun NoteDetailScreen(
 
             TextField(
                 modifier = Modifier.padding(dimensionResource(id = BaseUi.dimen.spacing_4x)),
-                value = viewModel.description,
+                value = description,
                 onValueChange = {
-                    viewModel.onEvent(NoteItemEvents.OnDescriptionChange(it))
+                    onDescriptionChange(it)
                 },
                 placeholder = {
                     Text(text = "Description")
@@ -366,7 +383,6 @@ fun NoteDetailScreen(
         }
 
     }
-
 }
 
 @Composable
@@ -377,16 +393,16 @@ fun ShowDialog(
     scheduleReminder: (delayMillis: Long, timeSecond: TimeUnit, name: String) -> Unit
 ) {
     if (dialogState) {
-        ReminderDialog(
-            name = title,
-            onDismiss = {  },
-            scheduleReminder = { delayMillis, timeSecond, name ->
-                scheduleReminder(
-                    delayMillis,
-                    timeSecond,
-                    name
-                )
-            }
-        )
+//        ReminderDialog(
+//            title = title,
+//            onDismiss = {  },
+//            scheduleReminder = { delayMillis, timeSecond, name ->
+//                scheduleReminder(
+//                    delayMillis,
+//                    timeSecond,
+//                    name
+//                )
+//            }
+//        )
     }
 }
