@@ -4,6 +4,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.drawable.shapes.OvalShape
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -13,6 +14,8 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Email
@@ -30,11 +33,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.dimensionResource
 import androidx.core.app.ActivityCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import com.peivandian.base.R
 import com.peivandian.base.navigationHelper.AppGraph
+import com.peivandian.base.theme.ColorBlue100
 import com.peivandian.base.theme.NoteTheme
 import com.peivandian.note_ui.util.navigation.addNoteGraph
 import dagger.hilt.android.AndroidEntryPoint
@@ -118,10 +125,23 @@ class MainActivity : ComponentActivity() {
                                     }
                                 },
                                 floatingActionButton = {
-                                    FloatingActionButton(onClick = { addNoteClick = true }) {
+                                    FloatingActionButton(
+                                        onClick = { addNoteClick = true },
+                                        containerColor = ColorBlue100,
+                                        shape = RoundedCornerShape(dimensionResource(id = R.dimen.spacing_14x)),
+                                        modifier = Modifier.padding(
+                                            horizontal = dimensionResource(id = R.dimen.spacing_2x)
+                                        ),
+                                    ) {
                                         Icon(
+                                            modifier = Modifier.padding(
+                                                horizontal = dimensionResource(
+                                                    id = R.dimen.spacing_2x
+                                                )
+                                            ),
                                             imageVector = Icons.Default.Add,
-                                            contentDescription = "Call contact"
+                                            contentDescription = "Call contact",
+                                            tint = Color.White
                                         )
                                     }
                                 }
@@ -149,8 +169,8 @@ class MainActivity : ComponentActivity() {
 
     companion object {
         const val CHANNEL_ID = "reminder_id"
-            private var TAG = "MainActivity"
-            const val REQUEST_CODE_NOTIFICATION_PERMISSIONS = 11
+        private var TAG = "MainActivity"
+        const val REQUEST_CODE_NOTIFICATION_PERMISSIONS = 11
 
     }
 

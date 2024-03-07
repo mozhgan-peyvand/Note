@@ -1,13 +1,11 @@
-package com.peivandian.note_ui.screens
+package com.peivandian.note_ui.util.workManager
 
 import android.annotation.SuppressLint
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -16,9 +14,6 @@ import javax.inject.Inject
 class RemindViewModel @Inject constructor(
     private var workManager: WorkManager
 ): ViewModel() {
-
-
-
 
     @SuppressLint("SuspiciousIndentation")
     fun scheduleReminder(
@@ -29,18 +24,14 @@ class RemindViewModel @Inject constructor(
     ) {
 
         // create a Data instance with the plantName passed to it
-        val myWorkRequestBuilder = OneTimeWorkRequestBuilder<SynchronizationWorker>()
-//        for (items in itemsList.toMutableList()) {
-//            if (items.name == plantName) {
-
+        val myWorkRequestBuilder = OneTimeWorkRequestBuilder<NotificationWorker>()
                 myWorkRequestBuilder.setInputData(
                     workDataOf(
                         "NAME" to title,
                         "MESSAGE" to description
                     )
                 )
-//            }
-//        }
+
         myWorkRequestBuilder.setInitialDelay(duration, timeUnit)
         workManager.enqueue(myWorkRequestBuilder.build())
     }

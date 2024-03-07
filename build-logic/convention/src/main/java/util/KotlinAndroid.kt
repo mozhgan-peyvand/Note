@@ -9,7 +9,7 @@ import util.MeratVersions.versionCode
 import util.MeratVersions.versionName
 
 internal fun Project.configureKotlinAndroid(
-    commonExtension: CommonExtension<*,*,*,*,*>
+    commonExtension: CommonExtension<*, *, *, *, *>
 ) {
     commonExtension.apply {
         compileSdk = MeratVersions.compileSdk
@@ -50,6 +50,8 @@ internal fun Project.configureKotlinAndroid(
         packaging {
             resources.excludes.add("META-INF/AL2.0")
             resources.excludes.add("META-INF/LGPL2.1")
+            resources.excludes.add("META-INF/LICENSE.md")
+            resources.excludes.add("META-INF/LICENSE-notice.md")
         }
 
     }

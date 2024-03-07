@@ -11,41 +11,43 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.unit.dp
 import com.peivandian.base.R
 import com.peivandian.base.theme.ColorBlue100
 import com.peivandian.base.theme.ColorGray300
-import com.peivandian.base.theme.Purple40
 import com.peivandian.note_models.NoteEntity
 
 @Composable
-fun NoteItem(note: NoteEntity, modifier: Modifier, onNoteClick: (NoteEntity) -> Unit) {
+fun GridNoteItem(note: NoteEntity, modifier: Modifier, onNoteClick: (NoteEntity) -> Unit) {
 
 
     Column(
         modifier = modifier
-            .fillMaxWidth()
+            .wrapContentWidth()
             .background(
                 color = Color.White,
                 shape = RoundedCornerShape(dimensionResource(id = R.dimen.spacing_4x))
             )
             .clip(RoundedCornerShape(dimensionResource(id = R.dimen.spacing_4x)))
-            .padding(dimensionResource(id = R.dimen.spacing_2x))
     ) {
         Row(
             modifier = Modifier
@@ -141,3 +143,4 @@ fun NoteItem(note: NoteEntity, modifier: Modifier, onNoteClick: (NoteEntity) -> 
         }
     }
 }
+
