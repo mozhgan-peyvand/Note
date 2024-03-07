@@ -1,7 +1,6 @@
 package com.peivandian.note_data.dataSources
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -18,9 +17,6 @@ interface NoteDao {
     //update it and replace with new data
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertNote (noteEntity: NoteEntity)
-
-    @Delete
-    suspend fun deleteNote(noteEntity: NoteEntity)
 
     @Query("SELECT * FROM NoteEntity WHERE id = :id")
     suspend fun getNoteById(id:Int): NoteEntity?

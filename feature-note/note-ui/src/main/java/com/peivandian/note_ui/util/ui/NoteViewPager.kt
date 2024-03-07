@@ -8,48 +8,50 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.peivandian.base.R
 import com.peivandian.base.theme.ColorBlue100
 import com.peivandian.base.theme.ColorGray100
-import com.peivandian.base.theme.ColorGray200
-import com.peivandian.base.theme.Purple40
 import com.peivandian.base.theme.White
-import com.peivandian.base.theme.black
 import com.peivandian.note_models.NoteEntity
+import com.peivandian.note_ui.screens.GridNoteItem
 import com.peivandian.note_ui.screens.NoteItem
 import kotlinx.coroutines.launch
 
@@ -59,7 +61,7 @@ import kotlinx.coroutines.launch
 fun TabsWithHorizontalPagerScreen(
     modifier: Modifier,
     noteList: List<NoteEntity>,
-    onNoteClick: (NoteEntity) -> Unit
+    onNoteClick: (NoteEntity) -> Unit,
 ) {
     val tabs = enumValues<Tab>()
 
@@ -72,7 +74,9 @@ fun TabsWithHorizontalPagerScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .padding(dimensionResource(id = R.dimen.spacing_2x))
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -142,19 +146,27 @@ fun TabsWithHorizontalPagerScreen(
             TabContents(
                 tab = tabs[pagerState.currentPage],
                 noteList = noteList,
-                onNoteClick = onNoteClick
+                onNoteClick = onNoteClick,
             )
+            // Code for displaying notes in a vertical list layout
+
+
         }
     }
 }
 
 @Composable
-fun TabContents(tab: Tab, noteList: List<NoteEntity>, onNoteClick: (NoteEntity) -> Unit) {
+fun TabContents(
+    tab: Tab,
+    noteList: List<NoteEntity>,
+    onNoteClick: (NoteEntity) -> Unit,
+) {
+
     when (tab) {
         Tab.All -> {
             AllNoteList(
                 noteList = noteList,
-                onNoteClick = onNoteClick
+                onNoteClick = onNoteClick,
             )
         }
 
@@ -180,7 +192,6 @@ fun TabContents(tab: Tab, noteList: List<NoteEntity>, onNoteClick: (NoteEntity) 
             }
         }
     }
-
 }
 
 enum class Tab(val title: String) {
@@ -188,24 +199,30 @@ enum class Tab(val title: String) {
 }
 
 @Composable
-fun AllNoteList(noteList: List<NoteEntity>, onNoteClick: (NoteEntity) -> Unit) {
+fun AllNoteList(
+    noteList: List<NoteEntity>,
+    onNoteClick: (NoteEntity) -> Unit,
+) {
+    var isGridView by rememberSaveable {
+        mutableStateOf(false)
+    }
     Column {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(dimensionResource(id = R.dimen.spacing_2x)),
+                .padding(
+                    horizontal = dimensionResource(id = R.dimen.spacing_4x),
+                    vertical = dimensionResource(id = R.dimen.spacing_2x)
+                ),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(text = "Recent Note")
             Row(modifier = Modifier) {
-                IconButton(onClick = { /*TODO*/ }) {
-                    Image(
-                        imageVector = ImageVector.vectorResource(
-                            com.peivandian.note_ui.R.drawable.element_1
-                        ),
-                        contentDescription = "",
-                    )
+                LayoutToggleButton(
+                    isGridView = isGridView
+                ) {
+                    isGridView = !isGridView
                 }
                 Divider(
                     modifier = Modifier
@@ -226,17 +243,62 @@ fun AllNoteList(noteList: List<NoteEntity>, onNoteClick: (NoteEntity) -> Unit) {
                 }
             }
         }
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            items(noteList) { note ->
-                NoteItem(
-                    note,
-                    Modifier.padding(vertical = dimensionResource(id = R.dimen.spacing_2x)),
-                    onNoteClick
-                )
+        if (isGridView) {
+            LazyVerticalStaggeredGrid(
+                columns = StaggeredGridCells.Fixed(2),
+                modifier = Modifier
+                    .fillMaxSize(),
+            ) {
+                items(noteList) { note ->
+                    GridNoteItem(
+                        note,
+                        Modifier.padding(dimensionResource(id = R.dimen.spacing_2x)),
+                        onNoteClick
+                    )
+                }
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                items(noteList) { note ->
+                    NoteItem(
+                        note,
+                        Modifier.padding(
+                            vertical = dimensionResource(id = R.dimen.spacing_2x),
+                            horizontal = dimensionResource(
+                                id = R.dimen.spacing_4x
+                            )
+                        ),
+                        onNoteClick
+                    )
+                }
             }
         }
+    }
+}
+
+@Composable
+fun LayoutToggleButton(
+    isGridView: Boolean,
+    onToggleClick: () -> Unit
+) {
+    val customGridViewImage = painterResource(com.peivandian.note_ui.R.drawable.element_1)
+    val customAgendaViewImage = painterResource(com.peivandian.note_ui.R.drawable.row_vertical)
+
+    val imageToShow = if (isGridView) customGridViewImage else customAgendaViewImage
+
+    val tint = LocalContentColor.current
+
+    IconButton(
+        onClick = onToggleClick,
+        modifier = Modifier.padding(4.dp)
+    ) {
+        Image(
+            imageToShow,
+            contentDescription = "Toggle Button",
+            colorFilter = ColorFilter.tint(tint)
+        )
     }
 }

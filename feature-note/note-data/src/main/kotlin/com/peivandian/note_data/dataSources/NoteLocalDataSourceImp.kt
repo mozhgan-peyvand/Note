@@ -10,10 +10,6 @@ class NoteLocalDataSourceImpl @Inject constructor( private val noteDao: NoteDao)
         noteDao.insertNote(noteEntity)
     }
 
-    override suspend fun deleteNote(noteEntity: NoteEntity) {
-        noteDao.deleteNote(noteEntity)
-    }
-
     override suspend fun getNoteById(id: Int): NoteEntity? {
        return noteDao.getNoteById(id)
     }

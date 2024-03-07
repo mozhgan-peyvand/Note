@@ -14,11 +14,6 @@ class NoteRepositoryImpl @Inject constructor(
         noteLocalDataSource.insertNote(noteEntity)
     }
 
-    override suspend fun deleteNote(noteEntity: NoteEntity) {
-        noteLocalDataSource.deleteNote(noteEntity)
-    }
-
-
     override suspend fun getNoteById(id: Int): NoteEntity? {
         return noteLocalDataSource.getNoteById(id)
     }

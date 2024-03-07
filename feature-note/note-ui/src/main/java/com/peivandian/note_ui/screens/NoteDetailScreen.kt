@@ -8,18 +8,22 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -34,11 +38,15 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.peivandian.base.theme.ColorGray100
+import com.peivandian.base.theme.ColorGray200
+import com.peivandian.base.theme.ColorGray300
 import com.peivandian.base.theme.ColorTransparentGray200
 import com.peivandian.base.theme.Purple40
+import com.peivandian.base.theme.White
 import com.peivandian.base.theme.black
 import com.peivandian.base.util.UiEvent
 import com.peivandian.note_models.NoteItemEvents
@@ -54,28 +62,14 @@ fun NoteDetailScreen(
     setHasBottomBar: (Boolean) -> Unit,
 ) {
     var dialogState by remember { mutableStateOf(false) }
-    var context = LocalContext.current
 
     if (dialogState) {
         ReminderDialog(
             title = viewModel.title,
             onDismiss = { dialogState = false },
-           description = viewModel.description
+            description = viewModel.description
         )
     }
-//    ShowDialog(
-//        dialogState = dialogState,
-//        setDialogState = { dialogState = it },
-//        title = viewModel.title,
-//        scheduleReminder = { delayMillis: Long, timeSecond: TimeUnit, name: String ->
-//            remindViewModel.scheduleReminder(
-//                delayMillis,
-//                timeSecond,
-//                name
-//            )
-//        }
-//    )
-
 
     setHasBottomBar.invoke(false)
 
@@ -83,30 +77,22 @@ fun NoteDetailScreen(
         viewModel.uiEvent.collect { event ->
             when (event) {
                 is UiEvent.PopBackStack -> onPopBackStack()
-                is UiEvent.ShowSnackbar -> {
-//                    scaffoldState.snackbarHostState.showSnackbar(
-//                        message = event.message,
-//                        actionLabel = event.action
-//                    )
-                }
-
                 else -> Unit
             }
         }
     }
 
     NoteDetailScreen(
-        onSaveTodoClick =  {
+        onSaveTodoClick = {
             viewModel.onEvent(NoteItemEvents.OnSaveTodoClick)
         },
-        setDialogState = {dialogState = it},
-        onTitleChange = {viewModel.onEvent(NoteItemEvents.OnTitleChange(it))},
+        setDialogState = { dialogState = it },
+        onTitleChange = { viewModel.onEvent(NoteItemEvents.OnTitleChange(it)) },
         title = viewModel.title,
         description = viewModel.description,
-        onDescriptionChange = {viewModel.onEvent(NoteItemEvents.OnDescriptionChange(it))}
+        onDescriptionChange = { viewModel.onEvent(NoteItemEvents.OnDescriptionChange(it)) },
+        onNavigationBack = { viewModel.onEvent(NoteItemEvents.OnBackClick) }
     )
-
-
 
 }
 
@@ -117,19 +103,24 @@ fun NoteDetailScreen(
     onTitleChange: (String) -> Unit,
     title: String,
     description: String,
-    onDescriptionChange: (String) -> Unit
+    onDescriptionChange: (String) -> Unit,
+    onNavigationBack: () -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(dimensionResource(id = BaseUi.dimen.spacing_4x))
+    ) {
         Box(modifier = Modifier.fillMaxWidth()) {
 
             OutlinedIconButton(
                 modifier = Modifier
                     .align(alignment = Alignment.TopStart)
-                    .padding(dimensionResource(id = BaseUi.dimen.spacing_4x))
+                    .padding(vertical = dimensionResource(id = BaseUi.dimen.spacing_4x))
                     .size(dimensionResource(id = BaseUi.dimen.spacing_13x)),
                 shape = CircleShape,
                 onClick = {
-                    onSaveTodoClick.invoke()
+                    onNavigationBack.invoke()
                 },
                 border = BorderStroke(
                     dimensionResource(id = BaseUi.dimen.spacing_half_base),
@@ -149,7 +140,9 @@ fun NoteDetailScreen(
                         .padding(top = dimensionResource(id = BaseUi.dimen.spacing_4x))
                         .size(dimensionResource(id = BaseUi.dimen.spacing_13x)),
                     shape = CircleShape,
-                    onClick = {},
+                    onClick = {
+                        onSaveTodoClick.invoke()
+                    },
                     border = BorderStroke(
                         dimensionResource(id = BaseUi.dimen.spacing_half_base),
                         color = ColorGray100
@@ -238,12 +231,6 @@ fun NoteDetailScreen(
         }
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(
-                    start = dimensionResource(id = BaseUi.dimen.spacing_4x),
-                    end = dimensionResource(id = BaseUi.dimen.spacing_4x),
-                    top = dimensionResource(id = BaseUi.dimen.spacing_4x)
-                )
                 .background(
                     color = Color.White,
                     shape = RoundedCornerShape(
@@ -251,82 +238,65 @@ fun NoteDetailScreen(
                         topStart = dimensionResource(id = BaseUi.dimen.spacing_6x)
                     )
                 )
+                .clip(
+                    RoundedCornerShape(
+                        topEnd = dimensionResource(id = BaseUi.dimen.spacing_6x),
+                        topStart = dimensionResource(id = BaseUi.dimen.spacing_6x)
+                    )
+                )
+                .fillMaxSize()
+                .padding(
+                    start = dimensionResource(id = BaseUi.dimen.spacing_4x),
+                    end = dimensionResource(id = BaseUi.dimen.spacing_4x),
+                    top = dimensionResource(id = BaseUi.dimen.spacing_4x)
+                )
 
         ) {
             TextField(
+                modifier = Modifier.fillMaxWidth(),
                 value = title,
                 onValueChange = {
                     onTitleChange.invoke(it)
                 },
                 placeholder = {
-                    Text(text = "Title")
+                    Text(
+                        text = stringResource(id = NoteUi.string.label_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = ColorGray200
+                    )
                 },
-                modifier = Modifier.fillMaxWidth()
+                singleLine = false,
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = White,
+                    unfocusedContainerColor = White,
+                    focusedIndicatorColor = White,
+                    unfocusedIndicatorColor = White,
+                )
             )
 
+
             TextField(
-                modifier = Modifier.padding(dimensionResource(id = BaseUi.dimen.spacing_4x)),
+                modifier = Modifier
+                    .background(Color.White),
                 value = description,
                 onValueChange = {
                     onDescriptionChange(it)
                 },
                 placeholder = {
-                    Text(text = "Description")
+                    Text(
+                        text = stringResource(id = NoteUi.string.label_description),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = ColorGray200
+                    )
                 },
                 singleLine = false,
-                maxLines = 5
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = White,
+                    unfocusedContainerColor = White,
+                    focusedIndicatorColor = White,
+                    unfocusedIndicatorColor = White,
+                )
             )
-            Row(
-                modifier = Modifier
-                    .wrapContentWidth()
-                    .clip(RoundedCornerShape(dimensionResource(id = BaseUi.dimen.spacing_6x)))
-                    .background(black)
-                    .padding(dimensionResource(id = BaseUi.dimen.spacing_2x)),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Image(
-                    modifier = Modifier
-                        .padding(dimensionResource(id = BaseUi.dimen.spacing_2x)),
-                    imageVector = ImageVector.vectorResource(NoteUi.drawable.eraser),
-                    contentDescription = ""
-                )
-
-                Image(
-                    modifier = Modifier
-                        .background(color = Color.White, shape = CircleShape)
-                        .padding(dimensionResource(id = BaseUi.dimen.spacing_2x)),
-                    imageVector = ImageVector.vectorResource(NoteUi.drawable.eraser),
-                    contentDescription = ""
-                )
-
-                Image(
-                    modifier = Modifier
-                        .padding(dimensionResource(id = BaseUi.dimen.spacing_2x)),
-                    imageVector = ImageVector.vectorResource(NoteUi.drawable.link),
-                    contentDescription = ""
-                )
-
-                Image(
-                    modifier = Modifier
-                        .padding(dimensionResource(id = BaseUi.dimen.spacing_2x)),
-                    imageVector = ImageVector.vectorResource(NoteUi.drawable.smallcaps),
-                    contentDescription = ""
-                )
-
-                Image(
-                    modifier = Modifier
-                        .padding(dimensionResource(id = BaseUi.dimen.spacing_2x)),
-                    imageVector = ImageVector.vectorResource(NoteUi.drawable.undo),
-                    contentDescription = ""
-                )
-                Image(
-                    modifier = Modifier
-                        .background(color = ColorTransparentGray200, shape = CircleShape)
-                        .padding(dimensionResource(id = BaseUi.dimen.spacing_2x)),
-                    imageVector = ImageVector.vectorResource(NoteUi.drawable.tick_circle),
-                    contentDescription = ""
-                )
-            }
 
 
         }

@@ -8,6 +8,5 @@ import androidx.room.PrimaryKey
 data class NoteEntity(
     val title: String,
     val description: String?,
-    val isDone: Boolean,
     @PrimaryKey val id: Int? =null
 )

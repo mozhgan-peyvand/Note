@@ -10,4 +10,6 @@
     <string name="schedule_8_minutes">8 minutes</string>
     <string name="schedule_1_day">1 day</string>
     <string name="schedule_1_week">1 week</string>
+    <string name="label_title">title</string>
+    <string name="label_description">description</string>
 </resources>
