@@ -1,5 +1,8 @@
 package com.peivandian.note_ui.util.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.compose.material3.SnackbarHostState
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -10,13 +13,16 @@ import androidx.navigation.navigation
 import com.peivandian.base.navigationHelper.AppGraph
 import com.peivandian.note_ui.screens.NoteDetailScreen
 import com.peivandian.note_ui.screens.NoteListScreen
+import com.peivandian.note_ui.util.ui.SharedNoteScreen
 
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 fun NavGraphBuilder.addNoteGraph(
     navController: NavHostController,
     setHasBottomBar: (Boolean) -> Unit,
     addNoteClick: Boolean,
-    setAddNote: (Boolean) -> Unit
+    setAddNote: (Boolean) -> Unit,
+    snackbarHostState: SnackbarHostState
 ) {
     navigation(
         route = AppGraph.NoteGraph.router,
@@ -26,19 +32,23 @@ fun NavGraphBuilder.addNoteGraph(
         composable(
             NoteRouter.NoteListScreen.router,
             deepLinks = listOf(navDeepLink {
-                uriPattern = "note://" + NoteRouter.NoteListScreen.router
+                uriPattern = NoteRouter.NoteListScreen.router
             })
             ) {
+            setHasBottomBar.invoke(true)
+
             NoteListScreen(
                 onNavigate = {
                     navController.navigate(it.route)
                 },
-                setHasBottomBar = setHasBottomBar,
                 addNoteClick = addNoteClick,
-                setAddNote = setAddNote
+                setAddNote = setAddNote,
+                snackbarHostState = snackbarHostState,
+                navController = navController
             )
         }
-        composable(NoteRouter.NoteDetailScreen.router + "?noteId={noteId}",
+        composable(
+            route = NoteRouter.NoteDetailScreen.router + "?noteId={noteId}",
             arguments = listOf(
                 navArgument(name = "noteId") {
                     type = NavType.IntType
@@ -46,32 +56,19 @@ fun NavGraphBuilder.addNoteGraph(
                 }
             )
         ) {
+            setHasBottomBar.invoke(false)
+
             NoteDetailScreen(
                 onPopBackStack = { navController.popBackStack() },
-                setHasBottomBar = setHasBottomBar
+                snackbarHostState = snackbarHostState
             )
         }
-//        noteListScreen {
-//            NoteListScreen(navController,setHasBottomBar =setHasBottomBar)
-//        }
-//
-//        noteDetailScreen {
-//            NoteDetailScreen(navController,setHasBottomBar = setHasBottomBar)
-//
-//        }
 
-
-//        forgetPasswordVerificationScreen {
-//            val forgetPasswordVerificationViewModel =
-//                UserComponent.builder(LocalContext.current as ComponentProviderActivity)
-//                    .getForgetPasswordVerificationViewModel()
-//            ForgetPasswordVerificationScreen(
-//                navigateToLogin = { navController.navigateToLoginScreen() },
-//                navigateUp = { navController.navigateToForgetPasswordScreen() },
-//                forgetPasswordVerificationViewModel = forgetPasswordVerificationViewModel
-//            )
-//        }
-
+        composable(
+            route = NoteRouter.SharedNoteScreen.router
+        ){
+            SharedNoteScreen()
+        }
     }
 }
 

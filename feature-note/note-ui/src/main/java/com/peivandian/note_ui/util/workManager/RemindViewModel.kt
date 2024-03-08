@@ -1,6 +1,7 @@
 package com.peivandian.note_ui.util.workManager
 
 import android.annotation.SuppressLint
+import androidx.core.app.NotificationCompat
 import androidx.lifecycle.ViewModel
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
@@ -27,13 +28,20 @@ class RemindViewModel @Inject constructor(
         val myWorkRequestBuilder = OneTimeWorkRequestBuilder<NotificationWorker>()
                 myWorkRequestBuilder.setInputData(
                     workDataOf(
-                        "NAME" to title,
-                        "MESSAGE" to description
+                        NAME to title,
+                        MESSAGE to description
                     )
                 )
 
+
+
         myWorkRequestBuilder.setInitialDelay(duration, timeUnit)
         workManager.enqueue(myWorkRequestBuilder.build())
+    }
+
+    companion object{
+       var  NAME = "NAME"
+       var  MESSAGE = "MESSAGE"
     }
 
 }

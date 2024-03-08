@@ -18,11 +18,4 @@ class NoteApplication : Application(), Configuration.Provider {
             .build()
     }
 
-
-//    @Inject
-//    lateinit var workerFactory: HiltWorkerFactory
-//
-//    fun getWorkManagerConfiguration() = Configuration.Builder()
-//        .setWorkerFactory(workerFactory)
-//        .build()
 }

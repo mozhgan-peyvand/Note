@@ -2,8 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
-    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:name=".NoteApplication"
@@ -17,7 +16,7 @@
         android:theme="@style/Theme.Note"
         tools:targetApi="31">
         <receiver
-            android:name="com.peivandian.base.util.MyReceiver"
+            android:name="com.peivandian.base.util.NoteReceiver"
             android:enabled="true"
             />
         <activity
@@ -34,7 +33,8 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="note" android:host="uinote://notelistscreen" />
+                <data android:scheme="note-ui" android:host="noteListScreen"
+                    tools:ignore="AppLinkUrlError" />
             </intent-filter>
         </activity>
 

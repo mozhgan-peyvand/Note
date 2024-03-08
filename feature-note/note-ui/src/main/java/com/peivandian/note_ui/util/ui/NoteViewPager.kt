@@ -6,13 +6,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
@@ -32,7 +32,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -44,8 +43,8 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.unit.dp
 import com.peivandian.base.R
 import com.peivandian.base.theme.ColorBlue100
 import com.peivandian.base.theme.ColorGray100
@@ -54,11 +53,12 @@ import com.peivandian.note_models.NoteEntity
 import com.peivandian.note_ui.screens.GridNoteItem
 import com.peivandian.note_ui.screens.NoteItem
 import kotlinx.coroutines.launch
+import com.peivandian.note_ui.R as NoteUi
 
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun TabsWithHorizontalPagerScreen(
+fun NoteTabs(
     modifier: Modifier,
     noteList: List<NoteEntity>,
     onNoteClick: (NoteEntity) -> Unit,
@@ -75,7 +75,7 @@ fun TabsWithHorizontalPagerScreen(
     ) {
         Row(
             modifier = Modifier
-                .padding(dimensionResource(id = R.dimen.spacing_2x))
+                .padding(dimensionResource(id = R.dimen.spacing_4x))
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
@@ -93,51 +93,69 @@ fun TabsWithHorizontalPagerScreen(
                 indicator = {},
             ) {
                 tabs.forEachIndexed { index, item ->
-                    Tab(
-                        modifier = Modifier
-                            .height(dimensionResource(id = R.dimen.spacing_8x))
-                            .clip(RoundedCornerShape(dimensionResource(id = R.dimen.spacing_13x)))
-                            .padding(horizontal = dimensionResource(id = R.dimen.spacing_base))
-                            .background(
-                                color = if (index == pagerState.currentPage)
-                                    ColorBlue100 else Color.White,
-                                shape = RoundedCornerShape(dimensionResource(id = com.peivandian.base.R.dimen.spacing_9x))
-                            ),
-                        selected = index == pagerState.currentPage,
-                        text = {
-                            Text(
-                                text = item.title,
-                                style = MaterialTheme.typography.labelMedium
-                            )
-                        },
-                        onClick = {
-                            coroutineScope.launch {
-                                pagerState.scrollToPage(index)
-                            }
-                        },
-                        selectedContentColor = if (index == pagerState.currentPage)
-                            Color.White else Color.Black,
-                    )
+                    if (item.title != Tab.Fab.title)
+                        Tab(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(dimensionResource(id = R.dimen.spacing_8x))
+                                .clip(RoundedCornerShape(dimensionResource(id = R.dimen.spacing_13x)))
+                                .padding(horizontal = dimensionResource(id = R.dimen.spacing_base))
+                                .background(
+                                    color = if (index == pagerState.currentPage)
+                                        ColorBlue100 else Color.White,
+                                    shape = RoundedCornerShape(dimensionResource(id = com.peivandian.base.R.dimen.spacing_9x))
+                                ),
+                            selected = index == pagerState.currentPage,
+                            text = {
+                                Text(
+                                    text = item.title,
+                                    style = MaterialTheme.typography.labelMedium
+                                )
+                            },
+                            onClick = {
+                                coroutineScope.launch {
+                                    pagerState.animateScrollToPage(index)
+                                }
+                            },
+                            selectedContentColor = if (index == pagerState.currentPage)
+                                Color.White else Color.Black,
+                        )
+
                 }
             }
-
-            IconButton(
-                onClick = { /*TODO*/ }, modifier = Modifier
-                    .padding(start = dimensionResource(id = R.dimen.spacing_base))
-                    .clip(CircleShape)
-                    .background(White, CircleShape)
+            Tab(
+                modifier = Modifier
                     .weight(1f)
-            ) {
-                Image(
-                    modifier = Modifier
-                        .background(color = White, shape = CircleShape)
-                        .padding(dimensionResource(id = R.dimen.spacing_2x))
-                        .weight(1f),
-                    imageVector = ImageVector.vectorResource(com.peivandian.note_ui.R.drawable.archive_minus),
-                    contentDescription = "",
+                    .wrapContentWidth()
+                    .clip(CircleShape)
+                    .background(
+                        color = if (3 == pagerState.currentPage)
+                            ColorBlue100 else Color.White,
+                        shape = CircleShape
+                    ),
+                selected = 3 == pagerState.currentPage,
+                onClick = {
+                    coroutineScope.launch {
+                        pagerState.animateScrollToPage(3)
+                    }
+                },
+                selectedContentColor = if (3 == pagerState.currentPage)
+                    Color.White else Color.Black,
+                icon = {
+                    Image(
+                        modifier = Modifier
+                            .clip(CircleShape),
+                        imageVector = ImageVector.vectorResource(NoteUi.drawable.archive_minus),
+                        contentDescription = "",
+                        colorFilter = ColorFilter.tint(
+                            color = if (3 == pagerState.currentPage)
+                                Color.White else Color.Black
+                        )
 
                     )
-            }
+                }
+            )
+
         }
         HorizontalPager(
             state = pagerState,
@@ -148,8 +166,6 @@ fun TabsWithHorizontalPagerScreen(
                 noteList = noteList,
                 onNoteClick = onNoteClick,
             )
-            // Code for displaying notes in a vertical list layout
-
 
         }
     }
@@ -191,11 +207,22 @@ fun TabContents(
                 Text(text = "${tab.title} contents")
             }
         }
+
+        Tab.Fab -> {
+            Box(
+                modifier = Modifier
+                    .padding(top = dimensionResource(id = R.dimen.spacing_4x))
+                    .fillMaxSize()
+                    .background(color = White), contentAlignment = Alignment.Center
+            ) {
+                Text(text = "${tab.title} Fab")
+            }
+        }
     }
 }
 
 enum class Tab(val title: String) {
-    All("All"), Work("Work"), LifeStyle("Life Style")
+    All("All"), Work("Work"), LifeStyle("Life Style"), Fab("Fab")
 }
 
 @Composable
@@ -217,13 +244,15 @@ fun AllNoteList(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = "Recent Note")
+            Text(text = stringResource(id = com.peivandian.note_ui.R.string.label_recent_note))
             Row(modifier = Modifier) {
                 LayoutToggleButton(
-                    isGridView = isGridView
-                ) {
-                    isGridView = !isGridView
-                }
+                    modifier = Modifier,
+                    isGridView = isGridView,
+                    onToggleClick = {
+                        isGridView = !isGridView
+                    }
+                )
                 Divider(
                     modifier = Modifier
                         .padding(top = dimensionResource(id = R.dimen.spacing_3x))
@@ -282,7 +311,8 @@ fun AllNoteList(
 @Composable
 fun LayoutToggleButton(
     isGridView: Boolean,
-    onToggleClick: () -> Unit
+    onToggleClick: () -> Unit,
+    modifier: Modifier
 ) {
     val customGridViewImage = painterResource(com.peivandian.note_ui.R.drawable.element_1)
     val customAgendaViewImage = painterResource(com.peivandian.note_ui.R.drawable.row_vertical)
@@ -293,7 +323,7 @@ fun LayoutToggleButton(
 
     IconButton(
         onClick = onToggleClick,
-        modifier = Modifier.padding(4.dp)
+        modifier = modifier
     ) {
         Image(
             imageToShow,

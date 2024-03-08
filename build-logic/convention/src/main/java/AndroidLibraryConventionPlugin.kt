@@ -54,9 +54,6 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
     }
 
     private fun generateVersionName(): String {
-        return if (Ext.testVersion != 0)
-            "${Ext.versionBusiness}.${Ext.versionMajor}.${Ext.versionMinor}.${Ext.versionPatch}.${Ext.testVersion}"
-        else
-            "${Ext.versionBusiness}.${Ext.versionMajor}.${Ext.versionMinor}.${Ext.versionPatch}"
+        return "${Ext.versionBusiness}.${Ext.versionMajor}.${Ext.versionMinor}.${Ext.versionPatch}"
     }
 }

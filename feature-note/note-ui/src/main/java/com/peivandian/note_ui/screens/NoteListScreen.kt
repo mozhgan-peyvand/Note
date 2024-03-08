@@ -10,60 +10,74 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.peivandian.base.theme.ColorGray300
 import com.peivandian.base.theme.black
 import com.peivandian.base.util.UiEvent
 import com.peivandian.note_models.NoteEntity
 import com.peivandian.note_models.NoteListEvents
 import com.peivandian.note_ui.R
-import com.peivandian.note_ui.util.ui.TabsWithHorizontalPagerScreen
+import com.peivandian.note_ui.util.ui.NoteTabs
 import com.peivandian.note_ui.R as NoteUi
 import com.peivandian.base.R as BaseUi
 
 @Composable
 fun NoteListScreen(
+    navController: NavHostController,
     onNavigate: (UiEvent.Navigate) -> Unit,
     viewModel: NoteListViewModel = hiltViewModel(),
-    setHasBottomBar: (Boolean) -> Unit,
     addNoteClick: Boolean,
-    setAddNote: (Boolean) -> Unit
+    setAddNote: (Boolean) -> Unit,
+    homeViewModel: HomeViewModel = hiltViewModel(),
+    snackbarHostState: SnackbarHostState
 ) {
 
     val noteList = viewModel.notes.collectAsState(initial = emptyList()).value
+    val event by homeViewModel.event.collectAsState()
+
+
 
     LaunchedEffect(key1 = true) {
         viewModel.uiEvent.collect { event ->
             when (event) {
+                is UiEvent.ShowSnackbar -> {
+                    snackbarHostState.showSnackbar(
+                        message = event.message,
+                        actionLabel = event.action
+                    )
+
+                }
                 is UiEvent.Navigate -> onNavigate(event)
                 else -> Unit
             }
         }
     }
 
+    LaunchedEffect(event) {
+        when (val currentEvent = event) {
+            is Event.NavigateWithDeeplink -> navController.navigate(currentEvent.deeplink)
+            Event.None -> Unit
+        }
 
-    setHasBottomBar.invoke(true)
+        homeViewModel.consumeEvent()
+    }
+
 
     NoteListScreen(
         addNoteClick = addNoteClick,
@@ -117,7 +131,7 @@ fun NoteListScreen(
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,
         ) {
-            TabsWithHorizontalPagerScreen(
+            NoteTabs(
                 Modifier.weight(5f),
                 noteList = noteList,
                 onNoteClick = { it ->
