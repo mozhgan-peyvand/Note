@@ -10,20 +10,12 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface NoteDao {
-
-    //on conflict is use for what was your strategy when insert an
-    //id that exist currently in database
-    //and we use of replace that mean when we have that id we should
-    //update it and replace with new data
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertNote (noteEntity: NoteEntity)
 
     @Query("SELECT * FROM NoteEntity WHERE id = :id")
     suspend fun getNoteById(id:Int): NoteEntity?
 
-
-    //we use of flow becuse it is cool and when list change
-    //we have new data and real time
     @Query("SELECT * FROM NoteEntity")
     fun getNotes(): Flow<List<NoteEntity>>
 }

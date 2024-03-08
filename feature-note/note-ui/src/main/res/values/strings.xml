@@ -12,4 +12,7 @@
     <string name="schedule_1_week">1 week</string>
     <string name="label_title">title</string>
     <string name="label_description">description</string>
+    <string name="msg_empty_title_note">the title cant be empty</string>
+    <string name="msg_save_note">It was done successfully</string>
+    <string name="label_recent_note">Recent Note</string>
 </resources>

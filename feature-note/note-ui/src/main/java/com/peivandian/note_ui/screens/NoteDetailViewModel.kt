@@ -1,5 +1,6 @@
 package com.peivandian.note_ui.screens
 
+import android.database.sqlite.SQLiteAbortException
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -69,21 +70,34 @@ class NoteDetailViewModel @Inject constructor(
 
             is NoteItemEvents.OnSaveTodoClick -> {
                 viewModelScope.launch {
-                    if (title.isBlank()) {
-                        sendUiEvent(
-                            UiEvent.ShowSnackbar(
-                                message = "the title cant be empty"
+                    try {
+                        if (title.isBlank()) {
+                            sendUiEvent(
+                                UiEvent.ShowSnackbar(
+                                    message = "the title cant be empty"
+                                )
                             )
-                        )
-                        return@launch
+                            return@launch
+                        } else {
+                            setLocalNotes(
+                                NoteEntity(
+                                    title = title,
+                                    description = description,
+                                    id = note?.id
+                                )
+                            )
+                            sendUiEvent(
+                                UiEvent.ShowSnackbar(
+                                    message = "It was done successfully"
+                                )
+                            )
+
+                        }
+                    } catch (e: SQLiteAbortException) {
+                        e.printStackTrace()
                     }
-                    setLocalNotes(
-                        NoteEntity(
-                            title = title,
-                            description = description,
-                            id = note?.id
-                        )
-                    )
+
+
                 }
             }
 

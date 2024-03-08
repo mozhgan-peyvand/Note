@@ -26,6 +26,7 @@ class NoteListViewModel @Inject constructor(
 
     fun onEvent(event: NoteListEvents) {
         when (event) {
+
             is NoteListEvents.OnNoteClick -> {
 
                 sendUiEvent(UiEvent.Navigate(NoteRouter.NoteDetailScreen.router + "?noteId=${event.noteEntity.id}"))

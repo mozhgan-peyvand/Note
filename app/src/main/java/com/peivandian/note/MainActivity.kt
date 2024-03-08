@@ -1,20 +1,15 @@
 package com.peivandian.note
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.content.Context
-import android.content.pm.PackageManager
-import android.graphics.drawable.shapes.OvalShape
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -22,20 +17,26 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
-import androidx.core.app.ActivityCompat
+import androidx.compose.ui.res.stringResource
+import androidx.core.util.Consumer
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
@@ -43,81 +44,93 @@ import com.peivandian.base.R
 import com.peivandian.base.navigationHelper.AppGraph
 import com.peivandian.base.theme.ColorBlue100
 import com.peivandian.base.theme.NoteTheme
+import com.peivandian.note_ui.screens.HomeViewModel
+import com.peivandian.note_ui.util.navigation.NoteRouter
 import com.peivandian.note_ui.util.navigation.addNoteGraph
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private lateinit var navHostController: NavHostController
-
-    @OptIn(ExperimentalMaterial3Api::class)
+    lateinit var viewModel: HomeViewModel
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+
         setContent {
-            //initializing the default selected item
-            var navigationSelectedItem by remember {
-                mutableStateOf(0)
+
+            val context = LocalContext.current
+
+            viewModel = hiltViewModel()
+
+            DisposableEffect(Unit) {
+                val listener = Consumer<Intent> { intent ->
+                    intent.data?.let {
+                        viewModel.handleDeeplink(it)
+                    }
+                }
+                addOnNewIntentListener(listener)
+                onDispose { removeOnNewIntentListener(listener) }
             }
+            val scope = rememberCoroutineScope()
+
             var hasBottomBar by remember {
                 mutableStateOf(true)
             }
             var addNoteClick by remember {
                 mutableStateOf(false)
             }
+            val snackbarHostState = remember { SnackbarHostState() }
+
             navHostController = rememberNavController()
             NoteTheme {
                 // A surface container using the 'background' color from the theme
-
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
+                    snackbarHost = {
+                        SnackbarHost(snackbarHostState)
+                    },
                     bottomBar = {
-//                        NavigationBar {
-//                            //getting the list of bottom navigation items for our data class
-//                            BottomNavigationItem().bottomNavigationItems()
-//                                .forEachIndexed { index, navigationItem ->
-//
-//                                    //iterating all items with their respective indexes
-//                                    NavigationBarItem(
-//                                        selected = index == navigationSelectedItem,
-//                                        label = {
-//                                            Text(navigationItem.label)
-//                                        },
-//                                        icon = {
-//                                            Icon(
-//                                                navigationItem.icon,
-//                                                contentDescription = navigationItem.label
-//                                            )
-//                                        },
-//                                        onClick = {
-//                                            navigationSelectedItem = index
-//                                            navHostController.navigate(navigationItem.route) {
-//                                                popUpTo(navHostController.graph.findStartDestination().id) {
-//                                                    saveState = true
-//                                                }
-//                                                launchSingleTop = true
-//                                                restoreState = true
-//                                            }
-//                                        }
-//                                    )
-//                                }
-//                        }
                         if (hasBottomBar) {
                             BottomAppBar(
                                 actions = {
-                                    IconButton(onClick = { /*TODO*/ }) {
+                                    IconButton(
+                                        onClick = {
+                                            navHostController.navigate(NoteRouter.SharedNoteScreen.router)
+                                        }
+                                    ) {
                                         Icon(
                                             imageVector = Icons.Default.Share,
                                             contentDescription = "Share contact"
                                         )
                                     }
-                                    IconButton(onClick = { /*TODO*/ }) {
+                                    IconButton(
+                                        onClick = {
+                                            scope.launch {
+                                                snackbarHostState.showSnackbar(
+                                                    message = context.getString(R.string.msg_future_feature),
+                                                    actionLabel = null
+                                                )
+                                            }
+                                        }
+                                    ) {
                                         Icon(
                                             imageVector = Icons.Default.FavoriteBorder,
                                             contentDescription = "Mark as favorite"
                                         )
                                     }
-                                    IconButton(onClick = { /*TODO*/ }) {
+                                    IconButton(onClick = {
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar(
+                                                message = context.getString(R.string.msg_future_feature),
+                                                actionLabel = null
+                                            )
+                                        }
+                                    }) {
                                         Icon(
                                             imageVector = Icons.Default.Email,
                                             contentDescription = "Email contact"
@@ -158,7 +171,8 @@ class MainActivity : ComponentActivity() {
                         setHasBottomBar = {
                             hasBottomBar = it
                         },
-                        setAddNote = { addNoteClick = it }
+                        setAddNote = { addNoteClick = it },
+                        snackbarHostState = snackbarHostState
                     )
 
                 }
@@ -166,96 +180,28 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-
-    companion object {
-        const val CHANNEL_ID = "reminder_id"
-        private var TAG = "MainActivity"
-        const val REQUEST_CODE_NOTIFICATION_PERMISSIONS = 11
-
-    }
-
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @Composable
     fun NoteNavigation(
         navHostController: NavHostController,
         paddingValues: PaddingValues,
         setHasBottomBar: (Boolean) -> Unit,
         addNoteClick: Boolean,
-        setAddNote: (Boolean) -> Unit
+        setAddNote: (Boolean) -> Unit,
+        snackbarHostState: SnackbarHostState
     ) {
         NavHost(
             navController = navHostController,
             startDestination = AppGraph.NoteGraph.router,
-            modifier = Modifier.padding(paddingValues = paddingValues)
+            modifier = Modifier.padding(paddingValues = paddingValues),
         ) {
             addNoteGraph(
                 navController = navHostController,
                 setHasBottomBar = setHasBottomBar,
                 addNoteClick = addNoteClick,
-                setAddNote = setAddNote
+                setAddNote = setAddNote,
+                snackbarHostState = snackbarHostState
             )
         }
     }
-
-//    @RequiresApi(Build.VERSION_CODES.M)
-//    private fun getNotificationPermissions() {
-//        try {
-//            // Check if the app already has the permissions.
-//            val hasAccessNotificationPolicyPermission =
-//                checkSelfPermission(android.Manifest.permission.ACCESS_NOTIFICATION_POLICY) == PackageManager.PERMISSION_GRANTED
-//            val hasPostNotificationsPermission =
-//                checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
-//
-//            // If the app doesn't have the permissions, request them.
-//            when {
-//                !hasAccessNotificationPolicyPermission || !hasPostNotificationsPermission -> {
-//                    // Request the permissions.
-//                    ActivityCompat.requestPermissions(
-//                        this,
-//                        arrayOf(
-//                            android.Manifest.permission.ACCESS_NOTIFICATION_POLICY,
-//                            android.Manifest.permission.POST_NOTIFICATIONS
-//                        ),
-//                        REQUEST_CODE_NOTIFICATION_PERMISSIONS
-//                    )
-//                }
-//                else -> {
-//                    // proceed
-//                    Log.d(TAG, "Notification Permissions : previously granted successfully")
-//                }
-//            }
-//        } catch (e: Exception) {
-//            e.printStackTrace()
-//        }
-//    }
-//
-//    @Deprecated("Deprecated in Java")
-//    @RequiresApi(Build.VERSION_CODES.M)
-//    override fun onRequestPermissionsResult(
-//        requestCode: Int,
-//        permissions: Array<out String>,
-//        grantResults: IntArray
-//    ) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-//
-//        when (requestCode) {
-//            // Check if the user granted the permissions.
-//            REQUEST_CODE_NOTIFICATION_PERMISSIONS -> {
-//                val hasAccessNotificationPolicyPermission =
-//                    grantResults[0] == PackageManager.PERMISSION_GRANTED
-//                val hasPostNotificationsPermission =
-//                    grantResults[1] == PackageManager.PERMISSION_GRANTED
-//
-//                // If the user denied the permissions, show a check.
-//                when {
-//                    !hasAccessNotificationPolicyPermission || !hasPostNotificationsPermission -> {
-//                        getNotificationPermissions()
-//                    }
-//                    else -> {
-//                        Log.d(TAG, "Notification Permissions : Granted successfully")
-//                    }
-//                }
-//            }
-//        }
-//    }
-
 }

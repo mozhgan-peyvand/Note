@@ -1,7 +1,10 @@
 package com.peivandian.note_ui.util.workManager
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.PackageManager
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.hilt.work.HiltWorker
@@ -21,7 +24,20 @@ class NotificationWorker @AssistedInject constructor(
 
     @SuppressLint("MissingPermission")
     override suspend fun doWork(): Result {
-        notificationManager.notify(17, notificationBuilder.build())
+
+        val noteTitle = inputData.getString(RemindViewModel.NAME)
+        val noteDescription = inputData.getString(RemindViewModel.MESSAGE)
+
+            notificationManager.notify(
+                17,
+                notificationBuilder.setStyle(
+                    NotificationCompat.BigTextStyle()
+                        .setBigContentTitle("$noteTitle")
+                        .bigText("$noteDescription")
+                )
+                    .build()
+            )
+
         return Result.success()
     }
 
