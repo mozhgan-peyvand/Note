@@ -63,6 +63,7 @@ fun NoteListScreen(
                     )
 
                 }
+
                 is UiEvent.Navigate -> onNavigate(event)
                 else -> Unit
             }
@@ -92,7 +93,9 @@ fun NoteListScreen(
                 NoteListEvents.OnNoteClick(it)
             )
         },
-        setAddNote = setAddNote
+        setAddNote = setAddNote,
+        searchNoteList = viewModel.searchedList.collectAsState().value,
+        onSearchClick = { viewModel.onEvent(NoteListEvents.OnSearchClick(it)) }
     )
 }
 
@@ -114,7 +117,9 @@ fun NoteListScreen(
     onAddNoteClick: () -> Unit,
     onNoteClick: (NoteEntity) -> Unit,
     addNoteClick: Boolean,
-    setAddNote: (Boolean) -> Unit
+    setAddNote: (Boolean) -> Unit,
+    onSearchClick: (query: String) -> Unit,
+    searchNoteList: MutableList<NoteEntity>
 ) {
 
 
@@ -137,6 +142,8 @@ fun NoteListScreen(
                 onNoteClick = { it ->
                     onNoteClick(it)
                 },
+                onSearchClick = onSearchClick,
+                searchNoteList = searchNoteList
             )
         }
     }

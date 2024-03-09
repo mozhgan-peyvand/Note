@@ -1,8 +1,10 @@
 package com.peivandian.note_ui.util.ui
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -22,6 +25,13 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.Icon
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Clear
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Divider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
@@ -32,6 +42,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -45,10 +56,13 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.input.KeyboardType
 import com.peivandian.base.R
 import com.peivandian.base.theme.ColorBlue100
 import com.peivandian.base.theme.ColorGray100
+import com.peivandian.base.theme.ColorGray300
 import com.peivandian.base.theme.White
+import com.peivandian.base.theme.black
 import com.peivandian.note_models.NoteEntity
 import com.peivandian.note_ui.screens.GridNoteItem
 import com.peivandian.note_ui.screens.NoteItem
@@ -62,6 +76,8 @@ fun NoteTabs(
     modifier: Modifier,
     noteList: List<NoteEntity>,
     onNoteClick: (NoteEntity) -> Unit,
+    onSearchClick: (query: String) -> Unit,
+    searchNoteList: MutableList<NoteEntity>
 ) {
     val tabs = enumValues<Tab>()
 
@@ -165,6 +181,8 @@ fun NoteTabs(
                 tab = tabs[pagerState.currentPage],
                 noteList = noteList,
                 onNoteClick = onNoteClick,
+                onSearchClick = onSearchClick,
+                searchNoteList = searchNoteList
             )
 
         }
@@ -176,6 +194,8 @@ fun TabContents(
     tab: Tab,
     noteList: List<NoteEntity>,
     onNoteClick: (NoteEntity) -> Unit,
+    onSearchClick: (query: String) -> Unit,
+    searchNoteList: MutableList<NoteEntity>
 ) {
 
     when (tab) {
@@ -183,6 +203,8 @@ fun TabContents(
             AllNoteList(
                 noteList = noteList,
                 onNoteClick = onNoteClick,
+                onSearchClick = onSearchClick,
+                searchNoteList = searchNoteList
             )
         }
 
@@ -229,10 +251,19 @@ enum class Tab(val title: String) {
 fun AllNoteList(
     noteList: List<NoteEntity>,
     onNoteClick: (NoteEntity) -> Unit,
+    onSearchClick: (query: String) -> Unit,
+    searchNoteList: MutableList<NoteEntity>
 ) {
     var isGridView by rememberSaveable {
         mutableStateOf(false)
     }
+
+    var searchedTextField by rememberSaveable {
+        mutableStateOf("")
+    }
+
+    var expanded by remember { mutableStateOf(false) }
+
     Column {
         Row(
             modifier = Modifier
@@ -244,7 +275,10 @@ fun AllNoteList(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = stringResource(id = com.peivandian.note_ui.R.string.label_recent_note))
+            AnimatedVisibility(visible = !expanded) {
+                Text(text = stringResource(id = com.peivandian.note_ui.R.string.label_recent_note))
+            }
+
             Row(modifier = Modifier) {
                 LayoutToggleButton(
                     modifier = Modifier,
@@ -253,23 +287,26 @@ fun AllNoteList(
                         isGridView = !isGridView
                     }
                 )
-                Divider(
-                    modifier = Modifier
-                        .padding(top = dimensionResource(id = R.dimen.spacing_3x))
-                        .size(
-                            height = dimensionResource(id = R.dimen.spacing_5x),
-                            width = dimensionResource(id = R.dimen.spacing_base)
-                        ),
-                    thickness = dimensionResource(id = R.dimen.spacing_half_base),
-                    color = ColorGray100
-                )
-                IconButton(onClick = { /*TODO*/ }) {
-                    Image(
-                        imageVector = ImageVector.vectorResource(
-                            com.peivandian.note_ui.R.drawable.search_normal
-                        ), contentDescription = ""
+                if (!expanded) {
+                    Divider(
+                        modifier = Modifier
+                            .padding(top = dimensionResource(id = R.dimen.spacing_3x))
+                            .size(
+                                height = dimensionResource(id = R.dimen.spacing_5x),
+                                width = dimensionResource(id = R.dimen.spacing_base)
+                            ),
+                        thickness = dimensionResource(id = R.dimen.spacing_half_base),
+                        color = ColorGray100
                     )
                 }
+
+                SearchText(
+                    expanded = expanded,
+                    setExpended = { expanded = it },
+                    onSearchClick = onSearchClick,
+                    searchedTextField = searchedTextField,
+                    setSearchedTextField = { searchedTextField = it }
+                )
             }
         }
         if (isGridView) {
@@ -278,12 +315,22 @@ fun AllNoteList(
                 modifier = Modifier
                     .fillMaxSize(),
             ) {
-                items(noteList) { note ->
-                    GridNoteItem(
-                        note,
-                        Modifier.padding(dimensionResource(id = R.dimen.spacing_2x)),
-                        onNoteClick
-                    )
+                if (searchedTextField.isEmpty()) {
+                    items(noteList) { note ->
+                        GridNoteItem(
+                            note,
+                            Modifier.padding(dimensionResource(id = R.dimen.spacing_2x)),
+                            onNoteClick
+                        )
+                    }
+                } else {
+                    items(searchNoteList) { note ->
+                        GridNoteItem(
+                            note,
+                            Modifier.padding(dimensionResource(id = R.dimen.spacing_2x)),
+                            onNoteClick
+                        )
+                    }
                 }
             }
         } else {
@@ -291,17 +338,27 @@ fun AllNoteList(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                items(noteList) { note ->
-                    NoteItem(
-                        note,
-                        Modifier.padding(
-                            vertical = dimensionResource(id = R.dimen.spacing_2x),
-                            horizontal = dimensionResource(
-                                id = R.dimen.spacing_4x
-                            )
-                        ),
-                        onNoteClick
-                    )
+                if (searchedTextField.isEmpty()) {
+                    items(noteList) { note ->
+                        NoteItem(
+                            note,
+                            Modifier.padding(
+                                vertical = dimensionResource(id = R.dimen.spacing_2x),
+                                horizontal = dimensionResource(
+                                    id = R.dimen.spacing_4x
+                                )
+                            ),
+                            onNoteClick
+                        )
+                    }
+                } else {
+                    items(searchNoteList) { note ->
+                        GridNoteItem(
+                            note,
+                            Modifier.padding(dimensionResource(id = R.dimen.spacing_2x)),
+                            onNoteClick
+                        )
+                    }
                 }
             }
         }
@@ -330,5 +387,72 @@ fun LayoutToggleButton(
             contentDescription = "Toggle Button",
             colorFilter = ColorFilter.tint(tint)
         )
+    }
+}
+
+@Composable
+fun SearchText(
+    onSearchClick: (query: String) -> Unit,
+    searchedTextField: String,
+    setSearchedTextField: (String) -> Unit,
+    expanded: Boolean,
+    setExpended: (Boolean) -> Unit
+) {
+
+
+    if (!expanded) {
+        IconButton(onClick = { setExpended.invoke(true) }) {
+            Image(
+                imageVector = ImageVector.vectorResource(
+                    com.peivandian.note_ui.R.drawable.search_normal
+                ), contentDescription = ""
+            )
+        }
+    }
+    AnimatedVisibility(expanded) {
+        OutlinedTextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
+            value = searchedTextField,
+            onValueChange = {
+                setSearchedTextField.invoke(it)
+                if (it.isNotEmpty()) {
+                    onSearchClick(it)
+                }
+            },
+            trailingIcon = {
+                Icon(
+                    modifier = Modifier.clickable {
+                        setExpended.invoke(false)
+                        setSearchedTextField.invoke("")
+                    },
+                    imageVector = Icons.Rounded.Clear,
+                    tint = black,
+                    contentDescription = "Clear Icon"
+                )
+            },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Rounded.Search,
+                    tint = black,
+                    contentDescription = "Search Icon"
+                )
+            },
+            placeholder = {
+                Text(
+                    text = stringResource(id = NoteUi.string.label_hint_search),
+                    color = ColorGray300,
+                    style = MaterialTheme.typography.labelMedium
+                )
+            },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+            shape = RoundedCornerShape(dimensionResource(id = R.dimen.spacing_6x)),
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedBorderColor = ColorBlue100
+            )
+
+        )
+
     }
 }
