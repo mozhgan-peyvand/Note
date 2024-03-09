@@ -10,15 +10,15 @@ android {
 
 dependencies {
 
+    implementation(project(":feature-note:note-models"))
+    implementation(project(":feature-note:note-data"))
+
     implementation(libs.coreKtx)
     implementation(libs.appcompat)
     implementation(libs.material)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
-
-    implementation(project(":feature-note:note-models"))
-    implementation(project(":feature-note:note-data"))
 
     //hilt
     implementation(libs.hiltAndroid)

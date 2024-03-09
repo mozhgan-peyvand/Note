@@ -39,8 +39,9 @@ dependencies {
 
     implementation("androidx.compose.material:material:1.5.4")
 
-// work manager
+    // work manager
     implementation("androidx.work:work-runtime-ktx:2.7.1")
+
     //hilt
     implementation(libs.hiltAndroid)
     kapt(libs.hiltCompiler)

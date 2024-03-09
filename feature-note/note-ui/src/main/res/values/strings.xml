@@ -15,4 +15,5 @@
     <string name="msg_empty_title_note">the title cant be empty</string>
     <string name="msg_save_note">It was done successfully</string>
     <string name="label_recent_note">Recent Note</string>
+    <string name="label_hint_search">Search you notes</string>
 </resources>
