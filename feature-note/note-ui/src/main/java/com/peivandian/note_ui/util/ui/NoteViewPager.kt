@@ -1,10 +1,13 @@
 package com.peivandian.note_ui.util.ui
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,8 +16,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -32,7 +33,6 @@ import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material3.Divider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -47,6 +47,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -59,7 +60,6 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.KeyboardType
 import com.peivandian.base.R
 import com.peivandian.base.theme.ColorBlue100
-import com.peivandian.base.theme.ColorGray100
 import com.peivandian.base.theme.ColorGray300
 import com.peivandian.base.theme.White
 import com.peivandian.base.theme.black
@@ -247,6 +247,7 @@ enum class Tab(val title: String) {
     All("All"), Work("Work"), LifeStyle("Life Style"), Fab("Fab")
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun AllNoteList(
     noteList: List<NoteEntity>,
@@ -261,7 +262,12 @@ fun AllNoteList(
     var searchedTextField by rememberSaveable {
         mutableStateOf("")
     }
-
+    var toggled by remember {
+        mutableStateOf(false)
+    }
+    val interactionSource = remember {
+        MutableInteractionSource()
+    }
     var expanded by remember { mutableStateOf(false) }
 
     Column {
@@ -280,26 +286,15 @@ fun AllNoteList(
             }
 
             Row(modifier = Modifier) {
-                LayoutToggleButton(
-                    modifier = Modifier,
-                    isGridView = isGridView,
-                    onToggleClick = {
-                        isGridView = !isGridView
-                    }
-                )
-                if (!expanded) {
-                    Divider(
-                        modifier = Modifier
-                            .padding(top = dimensionResource(id = R.dimen.spacing_3x))
-                            .size(
-                                height = dimensionResource(id = R.dimen.spacing_5x),
-                                width = dimensionResource(id = R.dimen.spacing_base)
-                            ),
-                        thickness = dimensionResource(id = R.dimen.spacing_half_base),
-                        color = ColorGray100
+                AnimatedVisibility(visible = !expanded) {
+                    LayoutToggleButton(
+                        modifier = Modifier,
+                        isGridView = isGridView,
+                        onToggleClick = {
+                            isGridView = !isGridView
+                        }
                     )
                 }
-
                 SearchText(
                     expanded = expanded,
                     setExpended = { expanded = it },
@@ -398,22 +393,21 @@ fun SearchText(
     expanded: Boolean,
     setExpended: (Boolean) -> Unit
 ) {
-
-
-    if (!expanded) {
-        IconButton(onClick = { setExpended.invoke(true) }) {
+    AnimatedVisibility(!expanded) {
+        IconButton(onClick = { setExpended(true) }) {
             Image(
                 imageVector = ImageVector.vectorResource(
                     com.peivandian.note_ui.R.drawable.search_normal
-                ), contentDescription = ""
+                ), contentDescription = null
             )
         }
     }
-    AnimatedVisibility(expanded) {
+    AnimatedVisibility(
+        visible = expanded, modifier = if (expanded) Modifier.fillMaxWidth() else Modifier,
+        enter = fadeIn() + expandHorizontally()
+    ) {
         OutlinedTextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
+            modifier = Modifier.fillMaxWidth(),
             value = searchedTextField,
             onValueChange = {
                 setSearchedTextField.invoke(it)
